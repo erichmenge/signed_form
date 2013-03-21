@@ -7,7 +7,7 @@ SignedForm brings new convenience and security to your Rails 4 or Rails 3 applic
 Traditionally, when you create a form with Rails you enter your fields using something like `f.input :name` and etc.
 Once you're done making your form you need to make sure that you've either set those parameters as accessible in the
 model (Rails 3) or use `permit` (Rails 4). This is redundant. Why would you make a form for a user to fill out and
-then not accept their input? Thus you need to always maintain this synchronization.
+then not accept their input? You need to always maintain this synchronization.
 
 SignedForm generates a list of attributes that you have in your form and attaches them to be submitted with the form
 along with a HMAC-SHA1 signature of those attributes to protect them from tampering. That means no more `permit` and
