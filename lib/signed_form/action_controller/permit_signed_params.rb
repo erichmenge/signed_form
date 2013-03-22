@@ -5,7 +5,6 @@ module SignedForm
 
       data, signature = params['form_signature'].split('--', 2)
 
-      data      ||= ''
       signature ||= ''
 
       raise Errors::InvalidSignature, "Form signature is not valid" unless SignedForm::HMAC.verify_hmac signature, data
