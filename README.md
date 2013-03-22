@@ -17,6 +17,8 @@ What this looks like:
 
 ``` erb
 <%= signed_form_for(@user) do |f| %>
+  <% f.additional_signed_fields :zipcode, :state # Optionally add additional fields %>
+
   <%= f.text_field :name %>
   <%= f.text_field :address %>
   <%= f.submit %>

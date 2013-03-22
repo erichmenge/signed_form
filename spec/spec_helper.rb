@@ -23,6 +23,10 @@ module SignedFormViewHelper
   def user_path(*)
     '/'
   end
+
+  def get_data_from_form(content)
+    Marshal.load Base64.strict_decode64(content.match(/name="form_signature" value="(.*)--/)[1])
+  end
 end
 
 RSpec.configure do |config|

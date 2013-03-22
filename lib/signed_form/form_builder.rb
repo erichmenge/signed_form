@@ -38,6 +38,10 @@ module SignedForm
       signed_attributes_object << hash
       super
     end
+
+    def additional_signed_fields(*fields)
+      signed_attributes_object.push(*fields)
+    end
   end
 end
 
