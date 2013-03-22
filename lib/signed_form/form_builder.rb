@@ -3,7 +3,7 @@ module SignedForm
     attr_accessor :signed_attributes, :signed_attributes_object
 
     # Rails 3 uses strings, Rails 4 uses symbols
-    (field_helpers.map(&:to_s) - %w(label fields_for)).each do |h|
+    (field_helpers.map(&:to_s) - %w(label fields_for button)).each do |h|
       define_method(h) do |field, *args|
         signed_attributes_object << field
         super(field, *args)
