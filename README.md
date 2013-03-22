@@ -1,4 +1,4 @@
-# SignedForm
+# SignedForm [![Build Status](https://travis-ci.org/erichmenge/signed_form.png?branch=master)](https://travis-ci.org/erichmenge/signed_form)
 
 SignedForm brings new convenience and security to your Rails 4 or Rails 3 application.
 
