@@ -69,6 +69,24 @@ describe SignedForm::FormBuilder do
       data = get_data_from_form(content)
       data['user'].should include("widgets_attributes" => [:name])
     end
+
+    it "should deeply nest attributes" do
+      content = signed_form_for(:author) do |f|
+        f.fields_for :books do |ff|
+          ff.text_field :name
+          ff.check_box :hardcover
+          ff.fields_for :pages do |fff|
+            fff.text_field :number
+          end
+        end
+      end
+
+      data = get_data_from_form(content)
+
+      data.should include(:author)
+      data[:author].first.should include(:books)
+      data[:author].first[:books].should include(:name, :hardcover, { pages: [:number] })
+    end
   end
 end
 

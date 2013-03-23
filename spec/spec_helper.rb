@@ -37,6 +37,18 @@ module SignedFormViewHelper
     '/'
   end
 
+  def _routes(*)
+    double('routes', url_for: '')
+  end
+
+  def controller(*)
+    double('controller')
+  end
+
+  def default_url_options
+    {}
+  end
+
   def get_data_from_form(content)
     Marshal.load Base64.strict_decode64(content.match(/name="form_signature" value="(.*)--/)[1])
   end
