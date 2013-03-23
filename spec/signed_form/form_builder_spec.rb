@@ -3,10 +3,20 @@ require 'spec_helper'
 class User
   extend ActiveModel::Naming
 
-  attr_accessor :name
+  attr_accessor :name, :widgets_attributes
 
   def to_key
     [1]
+  end
+end
+
+class Widget
+  extend ActiveModel::Naming
+
+  attr_accessor :name
+
+  def persisted?
+    false
   end
 end
 
@@ -15,6 +25,9 @@ describe SignedForm::FormBuilder do
 
   before { SignedForm::HMAC.secret_key = "abc123" }
   after  { SignedForm::HMAC.secret_key = nil }
+
+  let(:user) { User.new }
+  let(:widget) { Widget.new }
 
   describe "signed_form_for" do
     it "should build a form with signature" do
@@ -40,6 +53,21 @@ describe SignedForm::FormBuilder do
       data = get_data_from_form(content)
       data['user'].should include(:name, :address)
       data['user'].size.should == 2
+    end
+  end
+
+  describe "fields_for" do
+    it "should nest attributes" do
+      user.stub(widgets: widget)
+
+      content = signed_form_for(user) do |f|
+        f.fields_for :widgets do |ff|
+          ff.text_field :name
+        end
+      end
+
+      data = get_data_from_form(content)
+      data['user'].should include("widgets_attributes" => [:name])
     end
   end
 end

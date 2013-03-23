@@ -7,8 +7,9 @@ require 'signed_form'
 
 module SignedFormViewHelper
   include ActionView::Helpers::FormHelper
+  include ActionView::RecordIdentifier       if defined?(ActionView::RecordIdentifier)
+  include ActionController::RecordIdentifier if defined?(ActionController::RecordIdentifier)
   include SignedForm::ActionView::FormHelper
-  include ActionController::RecordIdentifier
 
   def self.included(base)
     base.class_eval do
