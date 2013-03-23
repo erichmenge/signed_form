@@ -5,10 +5,18 @@ require 'active_model'
 require 'action_controller'
 require 'signed_form'
 
+require 'active_support/core_ext'
+
 module SignedFormViewHelper
   include ActionView::Helpers::FormHelper
-  include ActionView::RecordIdentifier       if defined?(ActionView::RecordIdentifier)
-  include ActionController::RecordIdentifier if defined?(ActionController::RecordIdentifier)
+
+  if defined?(ActionView::RecordIdentifier)
+    include ActionView::RecordIdentifier
+  elsif defined?(ActionController::RecordIdentifier)
+    include ActionController::RecordIdentifier
+  end
+
+  include ActionView::Context if defined?(ActionView::Context)
   include SignedForm::ActionView::FormHelper
 
   def self.included(base)
@@ -22,6 +30,10 @@ module SignedFormViewHelper
   end
 
   def user_path(*)
+    '/'
+  end
+
+  def polymorphic_path(*)
     '/'
   end
 
