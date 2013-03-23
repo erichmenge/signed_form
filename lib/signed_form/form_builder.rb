@@ -15,7 +15,7 @@ module SignedForm
       if options[:signed_attributes_object]
         self.signed_attributes_object = options[:signed_attributes_object]
       else
-        self.signed_attributes = HashWithIndifferentAccess.new(object_name => [])
+        self.signed_attributes = { object_name => [] }
         self.signed_attributes_object = signed_attributes[object_name]
       end
     end
@@ -28,7 +28,7 @@ module SignedForm
     end
 
     def fields_for(record_name, record_object = nil, fields_options = {}, &block)
-      hash = HashWithIndifferentAccess.new
+      hash = {}
       if nested_attributes_association?(record_name)
         hash["#{record_name}_attributes"] = fields_options[:signed_attributes_object] = []
       else

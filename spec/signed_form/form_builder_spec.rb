@@ -23,8 +23,7 @@ describe SignedForm::FormBuilder do
       end
 
       regex = '<form.*>.*<input type="hidden" name="form_signature" ' \
-              'value="BAhDOi1BY3RpdmVTdXBwb3J0OjpIYXNoV2l0aEluZGlmZmVy' \
-              'ZW50QWNjZXNzewZJIgl1c2VyBjoGRUZbBjoJbmFtZQ==--17dd04878890cd6e1c9ed8192c3e5dfd42c1f8de" />.*' \
+              'value="BAh7BkkiCXVzZXIGOgZFRlsGOgluYW1l--e8f61481cb89382653c1f9de617e9a47e22c7da5".*/>.*' \
               '<input.*name="user\[name\]".*/>.*' \
               '</form>'
 
