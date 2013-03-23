@@ -71,7 +71,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should deeply nest attributes" do
-      content = signed_form_for(:author) do |f|
+      content = signed_form_for(:author, url: '/') do |f|
         f.fields_for :books do |ff|
           ff.text_field :name
           ff.check_box :hardcover
