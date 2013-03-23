@@ -58,7 +58,7 @@ describe SignedForm::FormBuilder do
 
   describe "fields_for" do
     it "should nest attributes" do
-      user.stub(widgets: widget)
+      user.stub(widgets: [widget])
 
       content = signed_form_for(user) do |f|
         f.fields_for :widgets do |ff|
