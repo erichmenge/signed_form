@@ -2,7 +2,7 @@ module SignedForm
   module ActionView
     module FormHelper
       def signed_form_for(record, options = {}, &block)
-        options[:builder] = SignedForm::FormBuilder
+        options[:builder] ||= SignedForm::FormBuilder
 
         form_for(record, options) do |f|
           output = capture(f, &block)

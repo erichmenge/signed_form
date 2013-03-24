@@ -44,10 +44,10 @@ describe SignedForm::FormBuilder do
     end
   end
 
-  describe "additional_signed_fields" do
+  describe "add_signed_fields" do
     it "should add fields to the marshaled data" do
       content = signed_form_for(User.new) do |f|
-        f.additional_signed_fields :name, :address
+        f.add_signed_fields :name, :address
       end
 
       data = get_data_from_form(content)
@@ -86,6 +86,28 @@ describe SignedForm::FormBuilder do
       data.should include(:author)
       data[:author].first.should include(:books)
       data[:author].first[:books].should include(:name, :hardcover, { pages: [:number] })
+    end
+
+    specify "nested arrays should not have duplicates" do
+      content = signed_form_for(:author, url: '/') do |f|
+        f.fields_for :books do |ff|
+          ff.text_field :name
+          ff.text_field :name
+        end
+      end
+
+      data = get_data_from_form(content)
+      data[:author].first[:books].size.should == 1
+    end
+
+    specify "attribute arrays should not have duplicates" do
+      content = signed_form_for(:author, url: '/') do |f|
+        f.text_field :name
+        f.text_field :name
+      end
+
+      data = get_data_from_form(content)
+      data[:author].size.should == 1
     end
   end
 end

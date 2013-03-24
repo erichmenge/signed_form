@@ -4,9 +4,9 @@ SignedForm brings new convenience and security to your Rails 4 or Rails 3 applic
 
 ## How It Works
 
-Traditionally, when you create a form with Rails you enter your fields using something like `f.input :name` and etc.
-Once you're done making your form you need to make sure that you've either set those parameters as accessible in the
-model (Rails 3) or use `permit` (Rails 4). This is redundant. Why would you make a form for a user to fill out and
+Traditionally, when you create a form with Rails you enter your fields using something like `f.text_field :name` and so
+on.  Once you're done making your form you need to make sure that you've either set those parameters as accessible in
+the model (Rails 3) or use `permit` (Rails 4). This is redundant. Why would you make a form for a user to fill out and
 then not accept their input? You need to always maintain this synchronization.
 
 SignedForm generates a list of attributes that you have in your form and attaches them to be submitted with the form
@@ -17,7 +17,7 @@ What this looks like:
 
 ``` erb
 <%= signed_form_for(@user) do |f| %>
-  <% f.additional_signed_fields :zipcode, :state # Optionally add additional fields %>
+  <% f.add_signed_fields :zipcode, :state # Optionally add additional fields to sign %>
 
   <%= f.text_field :name %>
   <%= f.text_field :address %>
@@ -42,9 +42,8 @@ way you use standard forms.
 
 ## Alpha Quality Software
 
-Because of the security sensitive nature of this gem I'm releasing this as 0.0.1.pre1 until I can get some more eyeballs
-on the code. This software should not be considered production ready. At this time it is only suitable for
-experimentation.
+Because of the security sensitive nature of this gem I'm releasing this as 0.0.1.pre1 until I can get some more eyes on
+the code. This software should not be considered production ready. At this time it is only suitable for experimentation.
 
 Now that I've made that disclaimer, you should know that SignedForm is functional.
 
@@ -85,8 +84,8 @@ remove a field someone could still access it using the old signature if some mal
 
 If you're running multiple application servers, the above initializer will not work. You'll need to keep the key in sync
 between all the servers. The security caveat with that is that if you ever remove a field from a form without updating
-that secret key, a malicious user could still access the field with the old signature. So you'll probably want to
-choose a new secret in the event you remove access to an attribute in a form.
+that secret key, a malicious user could still access the field with the old signature. So you'll probably want to choose
+a new secret in the event you remove access to an attribute in a form.
 
 My above initializer example errs on the side of caution, generating a new secret key every time the app starts up. Only
 you can decide what is right for you with respect to the secret key.

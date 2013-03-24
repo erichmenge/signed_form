@@ -3,7 +3,9 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in signed_form.gemspec
 gemspec
 
-case ENV['RAILS_VERSION']
+rails_version = ENV['RAILS_VERSION'] || 'master'
+
+case rails_version
 when /master/
   gem "rails", github: "rails/rails"
 when /3-2-stable/
