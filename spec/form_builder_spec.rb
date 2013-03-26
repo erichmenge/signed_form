@@ -44,6 +44,30 @@ describe SignedForm::FormBuilder do
     end
   end
 
+  describe "form inputs" do
+    (ActionView::Helpers::FormBuilder.field_helpers.map(&:to_s) - %w(label fields_for button radio_button apply_form_for_options!)).each do |field|
+      it "should add to the allowed attributes when #{field} is used" do
+        content = signed_form_for(User.new) do |f|
+          f.send field, :name
+        end
+
+        data = get_data_from_form(content)
+        data['user'].size.should == 1
+        data['user'].should include(:name)
+      end
+    end
+
+    it "should add to the allowed attributes when radio_button is used" do
+      content = signed_form_for(User.new) do |f|
+        f.radio_button :name, ['bar']
+      end
+
+      data = get_data_from_form(content)
+      data['user'].size.should == 1
+      data['user'].should include(:name)
+    end
+  end
+
   describe "add_signed_fields" do
     it "should add fields to the marshaled data" do
       content = signed_form_for(User.new) do |f|

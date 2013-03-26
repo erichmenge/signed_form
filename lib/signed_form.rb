@@ -1,3 +1,6 @@
+require "action_view"
+require "action_controller"
+
 require "signed_form/version"
 require "signed_form/errors"
 require "signed_form/form_builder"
