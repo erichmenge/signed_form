@@ -30,11 +30,11 @@ module SignedFormViewHelper
   end
 
   def user_path(*)
-    '/'
+    '/users'
   end
 
   def polymorphic_path(*)
-    '/'
+    '/users'
   end
 
   def _routes(*)

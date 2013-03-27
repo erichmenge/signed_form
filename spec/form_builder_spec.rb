@@ -36,11 +36,24 @@ describe SignedForm::FormBuilder do
       end
 
       regex = '<form.*>.*<input type="hidden" name="form_signature" ' \
-              'value="BAh7BkkiCXVzZXIGOgZFRlsGOgluYW1l--e8f61481cb89382653c1f9de617e9a47e22c7da5".*/>.*' \
+              'value="\w+={0,2}--\w+".*/>.*' \
               '<input.*name="user\[name\]".*/>.*' \
               '</form>'
 
       content.should =~ Regexp.new(regex, Regexp::MULTILINE)
+    end
+
+    it "should set a target" do
+      content = signed_form_for(User.new, sign_destination: true) do |f|
+        f.text_field :name
+      end
+
+      data = get_data_from_form(content)
+      data.size.should == 2
+      data.should include(:__options__)
+      data[:__options__].should include(:method, :url)
+      data[:__options__][:method].should == :post
+      data[:__options__][:url].should == '/users'
     end
   end
 
@@ -52,6 +65,7 @@ describe SignedForm::FormBuilder do
         end
 
         data = get_data_from_form(content)
+        data.size.should == 1
         data['user'].size.should == 1
         data['user'].should include(:name)
       end

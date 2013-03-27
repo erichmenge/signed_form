@@ -23,8 +23,9 @@ module SignedForm
 
       def form_signature_tag
         signed_attributes.each { |k,v| v.uniq! if v.is_a?(Array) }
+        signed_attributes[:__options__] = { method: options[:html][:method], url: options[:url] } if options[:sign_destination]
         encoded_data = Base64.strict_encode64 Marshal.dump(signed_attributes)
-        signature = SignedForm::HMAC::create_hmac(encoded_data)
+        signature = SignedForm::HMAC.create_hmac(encoded_data)
         token = "#{encoded_data}--#{signature}"
         %(<input type="hidden" name="form_signature" value="#{token}" />\n).html_safe
       end
