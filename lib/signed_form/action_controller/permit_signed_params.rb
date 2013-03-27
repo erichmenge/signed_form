@@ -1,22 +1,25 @@
 module SignedForm
-  module PermitSignedParams
-    def permit_signed_form_data
-      return if request.method == 'GET' || params['form_signature'].blank?
+  module ActionController
+    module PermitSignedParams
+      def self.included(base)
+        base.prepend_before_filter :permit_signed_form_data
+      end
 
-      data, signature = params['form_signature'].split('--', 2)
+      def permit_signed_form_data
+        return if request.method == 'GET' || params['form_signature'].blank?
 
-      signature ||= ''
+        data, signature = params['form_signature'].split('--', 2)
 
-      raise Errors::InvalidSignature, "Form signature is not valid" unless SignedForm::HMAC.verify_hmac signature, data
-      allowed_attributes = Marshal.load Base64.strict_decode64(data)
+        signature ||= ''
 
-      allowed_attributes.each do |k, v|
-        params[k] = params.require(k).permit(*v)
+        raise Errors::InvalidSignature, "Form signature is not valid" unless SignedForm::HMAC.verify_hmac signature, data
+        allowed_attributes = Marshal.load Base64.strict_decode64(data)
+
+        allowed_attributes.each do |k, v|
+          params[k] = params.require(k).permit(*v)
+        end
       end
     end
   end
 end
-
-ActionController::Base.send :include, SignedForm::PermitSignedParams
-ActionController::Base.prepend_before_filter :permit_signed_form_data
 

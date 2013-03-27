@@ -1,11 +1,10 @@
 require 'spec_helper'
 
-class Controller
-  include SignedForm::PermitSignedParams
-  include RSpec::Mocks::TestDouble
+class Controller < ActionController::Base
+  include SignedForm::ActionController::PermitSignedParams
 end
 
-describe SignedForm::PermitSignedParams do
+describe SignedForm::ActionController::PermitSignedParams do
   let(:controller) { Controller.new }
 
   before do

@@ -69,6 +69,17 @@ gem. Please set it up as instructed on the linked GitHub repo.
 
 If you're using Rails 4, it works out of the box.
 
+You'll need to include `SignedForm::ActionController::PermitSignedParams` in the controller(s) you want to use SignedForm with. This can
+be done application wide by adding the `include` to your ApplicationController.
+
+``` ruby
+ApplicationController < ActionController::Base
+  include SignedForm::ActionController::PermitSignedParams
+
+  # ...
+end
+```
+
 You'll also need to create an initializer:
 
     $ echo 'SignedForm::HMAC.secret_key = SecureRandom.hex(64)' > config/initializers/signed_form.rb
