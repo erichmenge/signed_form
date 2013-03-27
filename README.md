@@ -46,8 +46,7 @@ way you use standard forms.
 
 ## Alpha Quality Software
 
-Because of the security sensitive nature of this gem I'm releasing this as 0.0.1.pre1 until I can get some more eyes on
-the code. This software should not be considered production ready. At this time it is only suitable for experimentation.
+This software should not be considered production ready. At this time it is only suitable for experimentation.
 
 Now that I've made that disclaimer, you should know that SignedForm is functional.
 
@@ -89,6 +88,10 @@ You'll also need to create an initializer:
     $ echo 'SignedForm::HMAC.secret_key = SecureRandom.hex(64)' > config/initializers/signed_form.rb
 
 **IMPORTANT** Please read below for information regarding this secret key.
+
+## Support for other Builders
+
+* [SimpleForm](https://github.com/erichmenge/signed_form-simple_form)
 
 ## Special Considerations
 
