@@ -101,6 +101,12 @@ a new secret in the event you remove access to an attribute in a form.
 My above initializer example errs on the side of caution, generating a new secret key every time the app starts up. Only
 you can decide what is right for you with respect to the secret key.
 
+### Caching
+
+Another consideration to be aware of is caching. If you cache a form, and then change the secret key that form will
+perpetually submit parameters that fail verification. So if you want to cache the form you should tie the cache key to
+something that will be changed whenever the secret key changes.
+
 ## Contributing
 
 1. Fork it
