@@ -3,6 +3,8 @@ module SignedForm
     module PermitSignedParams
       def self.included(base)
         base.prepend_before_filter :permit_signed_form_data
+
+        gem 'strong_parameters' unless defined?(::ActionController::Parameters)
       end
 
       def permit_signed_form_data
