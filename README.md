@@ -62,7 +62,7 @@ SignedForm requires:
 
 Add this line to your application's Gemfile:
 
-    gem 'signed_form', '0.0.1.pre1'
+    gem 'signed_form', '~> 0.0.1'
 
 And then execute:
 
