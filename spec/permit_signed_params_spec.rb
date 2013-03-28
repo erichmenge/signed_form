@@ -2,6 +2,8 @@ require 'spec_helper'
 
 class Controller < ActionController::Base
   include SignedForm::ActionController::PermitSignedParams
+
+  public :permit_signed_form_data
 end
 
 describe SignedForm::ActionController::PermitSignedParams do

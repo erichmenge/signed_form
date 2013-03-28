@@ -22,6 +22,8 @@ module SignedForm
       secure_compare OpenSSL::HMAC.hexdigest(OpenSSL::Digest::SHA1.new, secret_key, data), signature
     end
 
+    private
+
     # After the Rack implementation
     def secure_compare(a, b)
       return false unless a.bytesize == b.bytesize

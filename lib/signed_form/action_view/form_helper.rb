@@ -1,6 +1,10 @@
 module SignedForm
   module ActionView
     module FormHelper
+
+      # This is a wrapper around ActionView's form_for helper.
+      #
+      # @option options :sign_destination [Boolean] Only the URL given/created will be allowed to receive the form.
       def signed_form_for(record, options = {}, &block)
         options[:builder] ||= SignedForm::FormBuilder
 

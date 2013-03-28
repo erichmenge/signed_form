@@ -11,7 +11,7 @@ module SignedForm
         end
       end
 
-      def initialize(*) #:nodoc:#
+      def initialize(*)
         super
         if options[:signed_attributes_object]
           self.signed_attributes_object = options[:signed_attributes_object]
@@ -30,6 +30,9 @@ module SignedForm
         %(<input type="hidden" name="form_signature" value="#{token}" />\n).html_safe
       end
 
+      # Wrapper for Rails fields_for
+      #
+      # @see http://api.rubyonrails.org/classes/ActionView/Helpers/FormBuilder.html#method-i-fields_for
       def fields_for(record_name, record_object = nil, fields_options = {}, &block)
         hash  = {}
         array = []
@@ -47,6 +50,13 @@ module SignedForm
         content
       end
 
+      # This method is used to add additional fields to sign. A usecase for this may be if you want to add fields later with javascript.
+      #
+      # @example
+      #   <%= signed_form_for(@user) do |f| %>
+      #     <% f.add_signed_fields :name, :address
+      #   <% end %>
+      #
       def add_signed_fields(*fields)
         signed_attributes_object.push(*fields)
       end
