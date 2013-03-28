@@ -32,4 +32,3 @@ describe SignedForm::HMAC do
     end
   end
 end
-

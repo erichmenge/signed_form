@@ -58,4 +58,3 @@ module SignedForm
     include Methods
   end
 end
-

@@ -135,4 +135,3 @@ describe SignedForm::FormBuilder do
     end
   end
 end
-

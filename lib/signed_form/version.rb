@@ -6,4 +6,3 @@ module SignedForm
 
   VERSION = [MAJOR, MINOR, PATCH, PRE].compact.join '.'
 end
-

@@ -17,4 +17,3 @@ when /3-0-stable/
 else
   gem "rails", ENV['RAILS_VERSION']
 end
-
