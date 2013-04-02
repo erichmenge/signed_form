@@ -30,7 +30,7 @@ What this looks like:
 ```
 
 ``` ruby
-UserController < ApplicationController
+UsersController < ApplicationController
   def create
     @user = User.find params[:id]
     @user.update_attributes params[:user]
