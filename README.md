@@ -44,24 +44,19 @@ That's it. You're done. Need to add a field? Pop it in the form. You don't need 
 Of course, you're free to continue using the standard `form_for`. `SignedForm` is strictly opt-in. It won't change the
 way you use standard forms.
 
-## Alpha Quality Software
-
-This software should not be considered production ready. At this time it is only suitable for experimentation.
-
-Now that I've made that disclaimer, you should know that SignedForm is functional.
-
 ## Requirements
 
 SignedForm requires:
 
 * Ruby 1.9 or later
-* Ruby on Rails 4 or Rails 3 (3.0 not supported) ([strong_parameters](https://github.com/rails/strong_parameters) gem required for Rails 3)
+* Ruby on Rails 4 or Rails 3 (3.0 not supported) ([strong_parameters](https://github.com/rails/strong_parameters) gem
+  required for Rails 3)
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'signed_form', '~> 0.0.1'
+    gem 'signed_form'
 
 And then execute:
 
@@ -72,8 +67,8 @@ gem. Please set it up as instructed on the linked GitHub repo.
 
 If you're using Rails 4, it works out of the box.
 
-You'll need to include `SignedForm::ActionController::PermitSignedParams` in the controller(s) you want to use SignedForm with. This can
-be done application wide by adding the `include` to your ApplicationController.
+You'll need to include `SignedForm::ActionController::PermitSignedParams` in the controller(s) you want to use
+SignedForm with. This can be done application wide by adding the `include` to your ApplicationController.
 
 ``` ruby
 ApplicationController < ActionController::Base
@@ -112,8 +107,8 @@ you can decide what is right for you with respect to the secret key.
 
 Take for example the case where you have an administrative backend. You might have `/admin/users/edit`. Users can also
 change some information about themselves though, so there's `/users/edit` as well. Now you have an admin that gets
-demoted, but still has a user account. If that admin were to retain a form signature from /admin/users/edit they could
-use that signature to modify the same fields from /users/edit. As a means of preventing such access SignedForm provides
+demoted, but still has a user account. If that admin were to retain a form signature from `/admin/users/edit` they could
+use that signature to modify the same fields from `/users/edit`. As a means of preventing such access SignedForm provides
 the `sign_destination` option to `signed_form_for`. Example:
 
 ``` erb
