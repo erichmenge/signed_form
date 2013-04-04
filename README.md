@@ -86,7 +86,7 @@ You'll also need to create an initializer:
 
 ## Support for other Builders
 
-* [SimpleForm](https://github.com/erichmenge/signed_form-simple_form)
+* [SimpleForm Adapter](https://github.com/erichmenge/signed_form-simple_form)
 
 ## Special Considerations
 
