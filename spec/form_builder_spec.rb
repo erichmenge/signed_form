@@ -58,7 +58,17 @@ describe SignedForm::FormBuilder do
   end
 
   describe "form inputs" do
-    (ActionView::Helpers::FormBuilder.field_helpers.map(&:to_s) - %w(label fields_for button radio_button apply_form_for_options!)).each do |field|
+    fields  = ActionView::Helpers::FormBuilder.instance_methods - Object.instance_methods
+    fields -= [:button, :multipart=, :submit,
+               :field_helpers, :label, :multipart,
+               :emitted_hidden_id?, :to_model, :field_helpers?,
+               :field_helpers=, :fields_for, :object_name=,
+               :object=, :object_name, :model_name_from_record_or_class,
+               :multipart?, :options, :options=,
+               :convert_to_model, :to_partial_path, :index,
+               :object, :radio_button, :parent_builder]
+
+    fields.each do |field|
       it "should add to the allowed attributes when #{field} is used" do
         content = signed_form_for(User.new) do |f|
           f.send field, :name

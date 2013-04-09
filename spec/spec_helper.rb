@@ -8,7 +8,7 @@ require 'signed_form'
 require 'active_support/core_ext'
 
 module SignedFormViewHelper
-  include ActionView::Helpers::FormHelper
+  include ActionView::Helpers
 
   if defined?(ActionView::RecordIdentifier)
     include ActionView::RecordIdentifier
