@@ -49,7 +49,7 @@ way you use standard forms.
 SignedForm requires:
 
 * Ruby 1.9 or later
-* Ruby on Rails 4 or Rails 3 (3.0 not supported) ([strong_parameters](https://github.com/rails/strong_parameters) gem
+* Rails 4 or Rails 3.1+ ([strong_parameters](https://github.com/rails/strong_parameters) gem
   required for Rails 3)
 
 ## Installation
