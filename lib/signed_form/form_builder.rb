@@ -4,7 +4,21 @@ module SignedForm
     # Base methods for form signing. Include this module in your own builders to get signatures for the base input
     # helpers. Add fields to sign with #add_signed_fields
     module Methods
-      (::ActionView::Helpers::FormBuilder.field_helpers.map(&:to_s) - %w(label fields_for button apply_form_for_options!)).each do |h|
+      FIELDS_TO_SIGN = [:select, :collection_select, :grouped_collection_select,
+                        :time_zone_select, :collection_radio_buttons, :collection_check_boxes,
+                        :date_select, :datetime_select, :time_select,
+                        :text_field, :password_field, :hidden_field,
+                        :file_field, :text_area, :check_box,
+                        :radio_button, :color_field, :search_field,
+                        :telephone_field, :phone_field, :date_field,
+                        :time_field, :datetime_field, :datetime_local_field,
+                        :month_field, :week_field, :url_field,
+                        :email_field, :number_field, :range_field]
+
+      FIELDS_TO_SIGN.delete_if { |e| !::ActionView::Helpers::FormBuilder.instance_methods.include?(e) }
+      FIELDS_TO_SIGN.freeze
+
+      FIELDS_TO_SIGN.each do |h|
         define_method(h) do |field, *args|
           add_signed_fields field
           super(field, *args)
