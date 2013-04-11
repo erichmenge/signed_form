@@ -1,25 +1,31 @@
-require 'openssl'
+require "openssl"
 
 module SignedForm
-  module HMAC
-    extend self
-
+  class HMAC
     attr_accessor :secret_key
+    attr_accessor :digest
 
-    def create_hmac(data)
-      if secret_key.nil? || secret_key.empty?
-        raise Errors::NoSecretKey, "Please consult the README for instructions on creating a secret key"
-      end
-
-      OpenSSL::HMAC.hexdigest OpenSSL::Digest::SHA1.new, secret_key, data
+    def self.secret_key=(key)
+      SignedForm.secret_key = key
+      warn "SignedForm::HMAC.secret_key is depreciated and will be removed in the next release. "\
+           "Please use SignedForm.secret_key instead."
     end
 
-    def verify_hmac(signature, data)
+    def initialize(options = {})
+      self.secret_key = options[:secret_key]
+      self.digest     = options.fetch(:digest, OpenSSL::Digest::SHA1.new)
+
       if secret_key.nil? || secret_key.empty?
         raise Errors::NoSecretKey, "Please consult the README for instructions on creating a secret key"
       end
+    end
 
-      secure_compare OpenSSL::HMAC.hexdigest(OpenSSL::Digest::SHA1.new, secret_key, data), signature
+    def create(data)
+      OpenSSL::HMAC.hexdigest digest, secret_key, data
+    end
+
+    def verify(signature, data)
+      secure_compare OpenSSL::HMAC.hexdigest(digest, secret_key, data), signature
     end
 
     private

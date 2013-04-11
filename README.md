@@ -40,7 +40,6 @@ end
 ```
 
 That's it. You're done. Need to add a field? Pop it in the form. You don't need to then update a list of attributes.
-`signed_form_for` works just like the standard `form_for`.
 
 Of course, you're free to continue using the standard `form_for`. `SignedForm` is strictly opt-in. It won't change the
 way you use standard forms.
@@ -81,7 +80,7 @@ end
 
 You'll also need to create an initializer:
 
-    $ echo 'SignedForm::HMAC.secret_key = SecureRandom.hex(64)' > config/initializers/signed_form.rb
+    $ echo 'SignedForm.secret_key = SecureRandom.hex(64)' > config/initializers/signed_form.rb
 
 **IMPORTANT** Please read below for information regarding this secret key.
 
@@ -109,21 +108,21 @@ you can decide what is right for you with respect to the secret key.
 Take for example the case where you have an administrative backend. You might have `/admin/users/edit`. Users can also
 change some information about themselves though, so there's `/users/edit` as well. Now you have an admin that gets
 demoted, but still has a user account. If that admin were to retain a form signature from `/admin/users/edit` they could
-use that signature to modify the same fields from `/users/edit`. As a means of preventing such access SignedForm provides
-the `sign_destination` option to `signed_form_for`. Example:
+use that signature to modify the same fields from `/users/edit`. As a means of preventing such access SignedForm signs
+the form destination by default. With `sign_destination` enabled, a form generated with a destination of
+`/admin/users/5` for example will only be accepted at that end point. The form would not be accepted at `/users/5`. So
+in the event you would like to use SignedForm on forms for the same resource, but different access levels, you have
+protection against the form being used elsewhere.
 
-``` erb
-<%= signed_form_for(@user, sign_destination: true) do |f| %>
-  <%= f.text_field :name %>
-  <!-- ... -->
-<% end %>
+This access protection can be turned off on an indivdual form basis: `signed_form_for(@user, sign_destination: false)`
+or globally:
+
+``` ruby
+SignedForm.config do |c|
+  c.secret_key = SecureRandom.hex(64)
+  c.options[:sign_destination] = false
+end
 ```
-
-With `sign_destination` enabled, a form generated with a destination of `/admin/users/5` for example will only be
-accepted at that end point. The form would not be accepted at `/users/5`. So in the event you would like to use
-SignedForm on forms for the same resource, but different access levels, you have protection against the form being used
-elsewhere.
-
 ### Caching
 
 Another consideration to be aware of is caching. If you cache a form, and then change the secret key that form will

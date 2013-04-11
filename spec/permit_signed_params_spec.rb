@@ -10,13 +10,11 @@ describe SignedForm::ActionController::PermitSignedParams do
   let(:controller) { Controller.new }
 
   before do
-    SignedForm::HMAC.secret_key = "abc123"
+    SignedForm.secret_key = "abc123"
 
     Controller.any_instance.stub(request: double('request', method: 'POST', fullpath: '/users'))
     Controller.any_instance.stub(params: { "user" => { name: "Erich Menge", occupation: 'developer' } })
   end
-
-  after  { SignedForm::HMAC.secret_key = nil }
 
   it "should raise if signature isn't valid" do
     controller.params['form_signature'] = "bad signature"
@@ -27,7 +25,7 @@ describe SignedForm::ActionController::PermitSignedParams do
     params = controller.params
 
     data      = Base64.strict_encode64(Marshal.dump("user" => [:name]))
-    signature = SignedForm::HMAC.create_hmac(data)
+    signature = SignedForm.hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
 
@@ -39,8 +37,8 @@ describe SignedForm::ActionController::PermitSignedParams do
   it "should verify current url matches targeted url" do
     params = controller.params
 
-    data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :__options__ => { method: 'post', url: '/users'  }))
-    signature = SignedForm::HMAC.create_hmac(data)
+    data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :_options_ => { method: 'post', url: '/users'  }))
+    signature = SignedForm.hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
 
@@ -53,8 +51,8 @@ describe SignedForm::ActionController::PermitSignedParams do
   it "should reject if url doesn't match" do
     params = controller.params
 
-    data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :__options__ => { method: 'post', url: '/admin'  }))
-    signature = SignedForm::HMAC.create_hmac(data)
+    data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :_options_ => { method: 'post', url: '/admin'  }))
+    signature = SignedForm.hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
 

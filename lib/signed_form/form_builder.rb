@@ -27,19 +27,19 @@ module SignedForm
 
       def initialize(*)
         super
-        if options[:signed_attributes_object]
-          self.signed_attributes_object = options[:signed_attributes_object]
+        if options[:signed_attributes_context]
+          @signed_attributes_context = options[:signed_attributes_context]
         else
-          self.signed_attributes = { object_name => [] }
-          self.signed_attributes_object = signed_attributes[object_name]
+          @signed_attributes = { object_name => [] }
+          @signed_attributes_context = signed_attributes[object_name]
         end
       end
 
       def form_signature_tag
         signed_attributes.each { |k,v| v.uniq! if v.is_a?(Array) }
-        signed_attributes[:__options__] = { method: options[:html][:method], url: options[:url] } if options[:sign_destination]
+        signed_attributes[:_options_] = { method: options[:html][:method], url: options[:url] } if options[:sign_destination]
         encoded_data = Base64.strict_encode64 Marshal.dump(signed_attributes)
-        signature = SignedForm::HMAC.create_hmac(encoded_data)
+        signature = SignedForm.hmac.create(encoded_data)
         token = "#{encoded_data}--#{signature}"
         %(<input type="hidden" name="form_signature" value="#{token}" />\n).html_safe
       end
@@ -52,9 +52,9 @@ module SignedForm
         array = []
 
         if nested_attributes_association?(record_name)
-          hash["#{record_name}_attributes"] = fields_options[:signed_attributes_object] = array
+          hash["#{record_name}_attributes"] = fields_options[:signed_attributes_context] = array
         else
-          hash[record_name] = fields_options[:signed_attributes_object] = array
+          hash[record_name] = fields_options[:signed_attributes_context] = array
         end
 
         add_signed_fields hash
@@ -72,12 +72,12 @@ module SignedForm
       #   <% end %>
       #
       def add_signed_fields(*fields)
-        signed_attributes_object.push(*fields)
+        signed_attributes_context.push(*fields)
       end
 
       private
 
-      attr_accessor :signed_attributes, :signed_attributes_object
+      attr_reader :signed_attributes, :signed_attributes_context
     end
 
     include Methods

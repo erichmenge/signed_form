@@ -66,4 +66,11 @@ RSpec.configure do |config|
   config.filter_run_excluding action_pack: ->(version) { ActionPack::VERSION::STRING.match(/\d+\.\d+/)[0] !~ version }
 
   config.order = 'random'
+
+  config.around(:each) do |example|
+    prestine_module = SignedForm.dup
+    example.run
+    Object.send :remove_const, :SignedForm
+    SignedForm = prestine_module
+  end
 end

@@ -23,8 +23,7 @@ end
 describe SignedForm::FormBuilder do
   include SignedFormViewHelper
 
-  before { SignedForm::HMAC.secret_key = "abc123" }
-  after  { SignedForm::HMAC.secret_key = nil }
+  before { SignedForm.secret_key = "abc123" }
 
   let(:user) { User.new }
   let(:widget) { Widget.new }
@@ -43,17 +42,31 @@ describe SignedForm::FormBuilder do
       content.should =~ Regexp.new(regex, Regexp::MULTILINE)
     end
 
-    it "should set a target" do
-      content = signed_form_for(User.new, sign_destination: true) do |f|
-        f.text_field :name
+    describe "sign_destination" do
+      after do
+        @data.should include(:_options_)
+        @data[:_options_].should include(:method, :url)
+        @data[:_options_][:method].should == :post
+        @data[:_options_][:url].should == '/users'
       end
 
-      data = get_data_from_form(content)
-      data.size.should == 2
-      data.should include(:__options__)
-      data[:__options__].should include(:method, :url)
-      data[:__options__][:method].should == :post
-      data[:__options__][:url].should == '/users'
+      it "should set a target" do
+        content = signed_form_for(User.new, sign_destination: true) do |f|
+          f.text_field :name
+        end
+
+        @data = get_data_from_form(content)
+      end
+
+      it "should set a target when the default options are enabled" do
+        SignedForm.options[:sign_destination] = true
+
+        content = signed_form_for(User.new) do |f|
+          f.text_field :name
+        end
+
+        @data = get_data_from_form(content)
+      end
     end
   end
 
@@ -72,8 +85,6 @@ describe SignedForm::FormBuilder do
                :datetime_select, :time_zone_select, :date_select]
 
     after do
-      @data.should be
-      @data.size.should == 1
       @data['user'].size.should == 1
       @data['user'].should include(:name)
     end

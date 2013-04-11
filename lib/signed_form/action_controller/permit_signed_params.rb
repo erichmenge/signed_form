@@ -19,10 +19,10 @@ module SignedForm
 
         signature ||= ''
 
-        raise Errors::InvalidSignature, "Form signature is not valid" unless SignedForm::HMAC.verify_hmac signature, data
+        raise Errors::InvalidSignature, "Form signature is not valid" unless SignedForm.hmac.verify signature, data
 
         allowed_attributes = Marshal.load Base64.strict_decode64(data)
-        options            = allowed_attributes.delete(:__options__)
+        options            = allowed_attributes.delete(:_options_)
 
         raise Errors::InvalidURL if options && (!options[:method].to_s.casecmp(request.method) || options[:url] != request.fullpath)
 
