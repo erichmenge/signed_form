@@ -3,9 +3,14 @@ require 'action_view/template'
 require 'action_controller'
 require 'active_model'
 require 'action_controller'
-require 'signed_form'
-
 require 'active_support/core_ext'
+
+require 'coveralls'
+Coveralls.wear! do
+  add_filter "/spec/"
+end
+
+require 'signed_form'
 
 module SignedFormViewHelper
   include ActionView::Helpers
