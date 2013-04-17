@@ -249,4 +249,24 @@ describe SignedForm::FormBuilder do
       data[:author].size.should == 1
     end
   end
+
+  describe "form digests" do
+    let (:controller) { ControllerRenderer.new }
+
+    it "should append a digest to the marshaled data" do
+      controller.render template: 'form'
+
+      data = get_data_from_form(controller.response_body)
+      data[:_options_].should include(:digest)
+      data[:_options_].should include(:digested_files)
+    end
+
+    it "should not digest if the option is disabled" do
+      SignedForm.options[:digest] = false
+
+      controller.render template: 'form'
+      data = get_data_from_form(controller.response_body)
+      data[:_options_].should_not include(:digest)
+    end
+  end
 end
