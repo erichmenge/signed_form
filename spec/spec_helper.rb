@@ -12,6 +12,20 @@ end
 
 require 'signed_form'
 
+class ControllerRenderer < AbstractController::Base
+  include AbstractController::Rendering
+  self.view_paths = [ActionView::FileSystemResolver.new(File.join(File.dirname(__FILE__), 'fixtures', 'views'))]
+
+  view_context_class.class_eval do
+    def url_for(*args)
+      '/users'
+    end
+
+  def to_key
+    [1]
+  end
+end
+
 module SignedFormViewHelper
   include ActionView::Helpers
 

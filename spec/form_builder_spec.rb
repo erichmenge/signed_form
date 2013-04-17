@@ -19,7 +19,6 @@ class Widget
     false
   end
 end
-
 describe SignedForm::FormBuilder do
   include SignedFormViewHelper
 
@@ -28,7 +27,7 @@ describe SignedForm::FormBuilder do
   let(:user) { User.new }
   let(:widget) { Widget.new }
 
-  describe "signed_form_for" do
+  describe "signed_form_for tag" do
     it "should build a form with signature" do
       content = signed_form_for(User.new) do |f|
         f.text_field :name
@@ -41,32 +40,32 @@ describe SignedForm::FormBuilder do
 
       content.should =~ Regexp.new(regex, Regexp::MULTILINE)
     end
+  end
 
-    describe "sign_destination" do
-      after do
-        @data.should include(:_options_)
-        @data[:_options_].should include(:method, :url)
-        @data[:_options_][:method].should == :post
-        @data[:_options_][:url].should == '/users'
+  describe "sign_destination" do
+    after do
+      @data.should include(:_options_)
+      @data[:_options_].should include(:method, :url)
+      @data[:_options_][:method].should == :post
+      @data[:_options_][:url].should == '/users'
+    end
+
+    it "should set a target" do
+      content = signed_form_for(User.new, sign_destination: true) do |f|
+        f.text_field :name
       end
 
-      it "should set a target" do
-        content = signed_form_for(User.new, sign_destination: true) do |f|
-          f.text_field :name
-        end
+      @data = get_data_from_form(content)
+    end
 
-        @data = get_data_from_form(content)
+    it "should set a target when the default options are enabled" do
+      SignedForm.options[:sign_destination] = true
+
+      content = signed_form_for(User.new) do |f|
+        f.text_field :name
       end
 
-      it "should set a target when the default options are enabled" do
-        SignedForm.options[:sign_destination] = true
-
-        content = signed_form_for(User.new) do |f|
-          f.text_field :name
-        end
-
-        @data = get_data_from_form(content)
-      end
+      @data = get_data_from_form(content)
     end
   end
 
