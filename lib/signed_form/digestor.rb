@@ -36,6 +36,10 @@ module SignedForm
     end
     alias_method :digest, :to_s
 
+    def refresh
+      @digest = nil
+    end
+
     private
 
     def glob_files

@@ -4,5 +4,6 @@ module SignedForm
     class InvalidSignature < StandardError; end
     class InvalidURL       < StandardError; end
     class UnableToDigest   < StandardError; end
+    class ExpiredForm      < StandardError; end
   end
 end
