@@ -3,7 +3,6 @@ require "openssl"
 module SignedForm
   class HMAC
     attr_accessor :secret_key
-    attr_accessor :digest
 
     def self.secret_key=(key)
       SignedForm.secret_key = key
@@ -13,7 +12,6 @@ module SignedForm
 
     def initialize(options = {})
       self.secret_key = options[:secret_key]
-      self.digest     = options.fetch(:digest, OpenSSL::Digest::SHA1.new)
 
       if secret_key.nil? || secret_key.empty?
         raise Errors::NoSecretKey, "Please consult the README for instructions on creating a secret key"
@@ -21,11 +19,11 @@ module SignedForm
     end
 
     def create(data)
-      OpenSSL::HMAC.hexdigest digest, secret_key, data
+      OpenSSL::HMAC.hexdigest OpenSSL::Digest::SHA1.new, secret_key, data
     end
 
     def verify(signature, data)
-      secure_compare OpenSSL::HMAC.hexdigest(digest, secret_key, data), signature
+      secure_compare OpenSSL::HMAC.hexdigest(OpenSSL::Digest::SHA1.new, secret_key, data), signature
     end
 
     private

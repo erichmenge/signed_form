@@ -16,10 +16,11 @@ module SignedForm
         return if request.method == 'GET' || params['form_signature'].blank?
 
         data, signature = params['form_signature'].split('--', 2)
+        hmac = SignedForm::HMAC.new secret_key: SignedForm.secret_key
 
         signature ||= ''
 
-        raise Errors::InvalidSignature, "Form signature is not valid" unless SignedForm.hmac.verify signature, data
+        raise Errors::InvalidSignature, "Form signature is not valid" unless hmac.verify signature, data
 
         allowed_attributes = Marshal.load Base64.strict_decode64(data)
         options            = allowed_attributes.delete(:_options_)

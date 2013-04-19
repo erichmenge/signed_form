@@ -8,6 +8,7 @@ end
 
 describe SignedForm::ActionController::PermitSignedParams do
   let(:controller) { Controller.new }
+  let(:hmac) { SignedForm::HMAC.new(secret_key: SignedForm.secret_key) }
 
   before do
     SignedForm.secret_key = "abc123"
@@ -25,7 +26,7 @@ describe SignedForm::ActionController::PermitSignedParams do
     params = controller.params
 
     data      = Base64.strict_encode64(Marshal.dump("user" => [:name]))
-    signature = SignedForm.hmac.create(data)
+    signature =hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
 
@@ -38,7 +39,7 @@ describe SignedForm::ActionController::PermitSignedParams do
     params = controller.params
 
     data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :_options_ => { method: 'post', url: '/users'  }))
-    signature = SignedForm.hmac.create(data)
+    signature = hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
 
@@ -52,7 +53,7 @@ describe SignedForm::ActionController::PermitSignedParams do
     params = controller.params
 
     data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :_options_ => { method: 'post', url: '/admin'  }))
-    signature = SignedForm.hmac.create(data)
+    signature = hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
 
@@ -66,7 +67,7 @@ describe SignedForm::ActionController::PermitSignedParams do
     params = controller.params
 
     data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :_options_ => { method: 'put', url: '/users'  }))
-    signature = SignedForm.hmac.create(data)
+    signature = hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
 

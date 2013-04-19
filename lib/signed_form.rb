@@ -14,20 +14,11 @@ module SignedForm
   }.freeze
 
   class << self
-    attr_reader :secret_key
-    def secret_key=(key)
-      @secret_key = key
-      hmac.secret_key = key if @hmac
-    end
+    attr_accessor :secret_key
 
     attr_writer :options
     def options
       @options ||= DEFAULT_OPTIONS.dup
-    end
-
-    attr_writer :hmac
-    def hmac
-      @hmac ||= SignedForm::HMAC.new(secret_key: secret_key)
     end
 
     def config
