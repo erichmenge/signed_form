@@ -19,10 +19,27 @@ class Widget
     false
   end
 end
+
+class ControllerRenderer < AbstractController::Base
+  include AbstractController::Rendering
+  self.view_paths = [ActionView::FileSystemResolver.new(File.join(File.dirname(__FILE__), 'fixtures', 'views'))]
+
+  view_context_class.class_eval do
+    def url_for(*args)
+      '/users'
+    end
+
+    def protect_against_forgery?
+      false
+    end
+  end
+end
+
 describe SignedForm::FormBuilder do
   include SignedFormViewHelper
 
   before { SignedForm.secret_key = "abc123" }
+  before { SignedForm.options[:digest] = false }
 
   let(:user) { User.new }
   let(:widget) { Widget.new }
@@ -251,6 +268,8 @@ describe SignedForm::FormBuilder do
   end
 
   describe "form digests" do
+    before { SignedForm.options[:digest] = true }
+
     let (:controller) { ControllerRenderer.new }
 
     it "should append a digest to the marshaled data" do
@@ -258,7 +277,6 @@ describe SignedForm::FormBuilder do
 
       data = get_data_from_form(controller.response_body)
       data[:_options_].should include(:digest)
-      data[:_options_].should include(:digested_files)
     end
 
     it "should not digest if the option is disabled" do
@@ -267,6 +285,14 @@ describe SignedForm::FormBuilder do
       controller.render template: 'form'
       data = get_data_from_form(controller.response_body)
       data[:_options_].should_not include(:digest)
+    end
+
+    it "should get the digest from the view paths" do
+      controller.render template: 'form'
+      data = get_data_from_form(controller.response_body)
+      digestor = data[:_options_][:digest]
+      digestor.view_paths = controller.view_paths
+      digestor.to_s.should == "e9811ec4fea3c91c8b581f929c73a916"
     end
   end
 end

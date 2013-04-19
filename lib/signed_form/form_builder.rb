@@ -32,12 +32,12 @@ module SignedForm
         else
           @signed_attributes = { object_name => [] }
           @signed_attributes_context = signed_attributes[object_name]
+          prepare_signed_attributes_hash
         end
       end
 
       def form_signature_tag
         signed_attributes.each { |k,v| v.uniq! if v.is_a?(Array) }
-        signed_attributes[:_options_] = { method: options[:html][:method], url: options[:url] } if options[:sign_destination]
         encoded_data = Base64.strict_encode64 Marshal.dump(signed_attributes)
 
         hmac = SignedForm::HMAC.new(secret_key: SignedForm.secret_key)
@@ -75,11 +75,25 @@ module SignedForm
       #
       def add_signed_fields(*fields)
         signed_attributes_context.push(*fields)
+        options[:digest] << @template if options[:digest]
       end
 
       private
 
       attr_reader :signed_attributes, :signed_attributes_context
+
+      def prepare_signed_attributes_hash
+        signed_attributes[:_options_] = {}
+
+        if options[:sign_destination]
+          signed_attributes[:_options_][:method] = options[:html][:method]
+          signed_attributes[:_options_][:url]    = options[:url]
+        end
+
+        if options[:digest]
+          signed_attributes[:_options_][:digest] = options[:digest] = Digestor.new(@template)
+        end
+      end
     end
 
     include Methods
