@@ -32,7 +32,7 @@ module SignedForm
     end
 
     def to_s
-      @digest ||= hash_files(glob_files)
+      @digest ||= SignedForm.digest_store.fetch(@views.sort.join(':')) { hash_files(glob_files) }
     end
     alias_method :digest, :to_s
 
