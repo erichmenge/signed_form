@@ -92,6 +92,7 @@ module SignedForm
 
         if options[:digest]
           signed_attributes[:_options_][:digest] = options[:digest] = Digestor.new(@template)
+          signed_attributes[:_options_][:digest_expiration] = Time.now + options[:digest_grace_period] if options[:digest_grace_period]
         end
       end
     end

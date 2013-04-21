@@ -68,6 +68,8 @@ module SignedForm
       def verify_digest
         return unless options[:digest]
 
+        return if options[:digest_expiration] && Time.now < options[:digest_expiration]
+
         digestor = options[:digest]
         given_digest = digestor.digest
         digestor.view_paths = @controller.view_paths.map(&:to_s)

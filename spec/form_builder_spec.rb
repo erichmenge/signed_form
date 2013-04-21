@@ -294,5 +294,12 @@ describe SignedForm::FormBuilder do
       digestor.view_paths = controller.view_paths
       digestor.to_s.should == "e9811ec4fea3c91c8b581f929c73a916"
     end
+
+    it "should set a grace period" do
+      controller.render template: 'form'
+      data = get_data_from_form(controller.response_body)
+      data[:_options_].should include(:digest_expiration)
+      (Time.now..(Time.now + SignedForm.options[:digest_grace_period])).should cover(data[:_options_][:digest_expiration])
+    end
   end
 end

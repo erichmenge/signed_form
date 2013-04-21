@@ -13,8 +13,9 @@ require "signed_form/engine" if defined?(Rails)
 
 module SignedForm
   DEFAULT_OPTIONS = {
-    sign_destination: true,
-    digest:           true
+    sign_destination:    true,
+    digest:              true,
+    digest_grace_period: 300
   }.freeze
 
   class << self
