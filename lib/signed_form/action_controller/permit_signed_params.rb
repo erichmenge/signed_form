@@ -25,13 +25,10 @@ module SignedForm
         options            = allowed_attributes.delete(:_options_)
 
         if options
-          if options[:method].to_s.casecmp(request.request_method) != 0
-            raise Errors::InvalidURL
-          end
+          raise Errors::InvalidURL if options[:method].to_s.casecmp(request.request_method) != 0
+
           url = url_for(options[:url])
-          if url != request.fullpath and url != request.url
-            raise Errors::InvalidURL
-          end
+          raise Errors::InvalidURL if url != request.fullpath && url != request.url
         end
 
         allowed_attributes.each do |k, v|
