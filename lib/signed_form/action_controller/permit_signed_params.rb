@@ -20,6 +20,12 @@ module SignedForm
         gate_keeper.allowed_attributes.each do |k, v|
           params[k] = params.require(k).permit(*v)
         end
+      rescue Errors::ExpiredForm
+        if defined?(Rails)
+          render 'signed_form/expired_form', status: 500, layout: nil
+        else
+          raise
+        end
       end
     end
 
