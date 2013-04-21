@@ -12,7 +12,7 @@ describe SignedForm::ActionController::PermitSignedParams do
   before do
     SignedForm.secret_key = "abc123"
 
-    Controller.any_instance.stub(request: double('request', method: 'POST', fullpath: '/users'))
+    Controller.any_instance.stub(request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users'))
     Controller.any_instance.stub(params: { "user" => { name: "Erich Menge", occupation: 'developer' } })
   end
 
@@ -52,6 +52,20 @@ describe SignedForm::ActionController::PermitSignedParams do
     params = controller.params
 
     data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :_options_ => { method: 'post', url: '/admin'  }))
+    signature = SignedForm.hmac.create(data)
+
+    params['form_signature'] = "#{data}--#{signature}"
+
+    params.stub(:require).with('user').and_return(params)
+    params.stub(:permit).with(:name).and_return(params)
+
+    expect { controller.permit_signed_form_data }.to raise_error(SignedForm::Errors::InvalidURL)
+  end
+
+  it "should reject if method doesn't match" do
+    params = controller.params
+
+    data      = Base64.strict_encode64(Marshal.dump("user" => [:name], :_options_ => { method: 'put', url: '/users'  }))
     signature = SignedForm.hmac.create(data)
 
     params['form_signature'] = "#{data}--#{signature}"
