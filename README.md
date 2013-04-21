@@ -44,6 +44,17 @@ That's it. You're done. Need to add a field? Pop it in the form. You don't need 
 Of course, you're free to continue using the standard `form_for`. `SignedForm` is strictly opt-in. It won't change the
 way you use standard forms.
 
+## More than just Convenience &mdash; Security
+
+SignedForm protects you in 3 ways:
+
+* Form fields are signed, so no alteration of the fields are allowed.
+* Form actions are signed. That means a form with an action of `/admin/users/3` will not work when submitted to `/users/3`.
+* Forms views are digested (see below). So if you remove a field from your form, old forms will not be accepted despite
+  a valid signature.
+
+The second two methods of security are optional and can be turned off globally or on a form by form basis.
+
 ## Requirements
 
 SignedForm requires:
@@ -80,54 +91,53 @@ end
 
 You'll also need to create an initializer:
 
-    $ echo 'SignedForm.secret_key = SecureRandom.hex(64)' > config/initializers/signed_form.rb
+    $ echo "SignedForm.secret_key = '$(rake secret)'" > config/initializers/signed_form.rb
 
-**IMPORTANT** Please read below for information regarding this secret key.
+You'll probably want to keep this out of version control. Treat this key like you would your session secret, keep it
+private.
 
 ## Support for other Builders
 
 * [SimpleForm Adapter](https://github.com/erichmenge/signed_form-simple_form)
 
-## Special Considerations
+## Form Digests
 
-If you're running only a single application server the above initializer should work great for you, with a couple of
-caveats. If a user is in process of filling out a form and you restart your server, their form will be invalidated.
-You could pick a secret key using `rake secret` and put that in the initializer instead, but then in the event you
-remove a field someone could still access it using the old signature if some malicious person were to keep it around.
+SignedForm will create a digest of all the views/partials involved with rendering your form. If the form is modifed old
+forms will no longer be valid. This is done to eliminate the possibility of old forms coming back to bite you.
 
-If you're running multiple application servers, the above initializer will not work. You'll need to keep the key in sync
-between all the servers. The security caveat with that is that if you ever remove a field from a form without updating
-that secret key, a malicious user could still access the field with the old signature. So you'll probably want to choose
-a new secret in the event you remove access to an attribute in a form.
+By default, there is a 5 minute grace period before old forms will be rejected. This is done so that if you make a
+trivial change to a form you won't prevent a form from a user is currently filling out from being accepted when you
+restart your server.
 
-My above initializer example errs on the side of caution, generating a new secret key every time the app starts up. Only
-you can decide what is right for you with respect to the secret key.
+Of course if there is some critical mistake that was made (such as allowing an admin field to be set in the form) you
+could temporarily turn the digest system off or change the secret key to prevent any old form from getting through.
 
-### Multiple Access Points
+By default, these digests are not cached. That means that each form that is submitted will have the views be digested
+again. Most views and partials are relatively small so the cost of computing the MD5 hash of the files is not very
+expensive. However, if this is something you care about SignedForm also provides a memory store
+(`SignedForm::DigestStores::MemoryStore`) that will cache the digests in memory. Other stores could be used as well, as
+long as the class instance responds to `#fetch` taking the cache key as an argument as well as the block that will
+return the stored digest.
 
-Take for example the case where you have an administrative backend. You might have `/admin/users/edit`. Users can also
-change some information about themselves though, so there's `/users/edit` as well. Now you have an admin that gets
-demoted, but still has a user account. If that admin were to retain a form signature from `/admin/users/edit` they could
-use that signature to modify the same fields from `/users/edit`. As a means of preventing such access SignedForm signs
-the form destination by default. With `sign_destination` enabled, a form generated with a destination of
-`/admin/users/5` for example will only be accepted at that end point. The form would not be accepted at `/users/5`. So
-in the event you would like to use SignedForm on forms for the same resource, but different access levels, you have
-protection against the form being used elsewhere.
+## Example Configuration
 
-This access protection can be turned off on an indivdual form basis: `signed_form_for(@user, sign_destination: false)`
-or globally:
+An example config/initializers/signed_form.rb might look something like this (these are the defaults, with the exception
+of the key of course):
 
 ``` ruby
 SignedForm.config do |c|
-  c.secret_key = SecureRandom.hex(64)
-  c.options[:sign_destination] = false
-end
-```
-### Caching
+  c.options[:sign_destination]    = true
+  c.options[:digest]              = true
+  c.options[:digest_grace_period] = 300
 
-Another consideration to be aware of is caching. If you cache a form, and then change the secret key that form will
-perpetually submit parameters that fail verification. So if you want to cache the form you should tie the cache key to
-something that will be changed whenever the secret key changes.
+  c.digest_store = SignedForm::DigestStores::NullStore.new
+  c.secret_key   = 'supersecret'
+end
+
+```
+
+Those options that are in the options hash are the default per-form options. They can be overridden by passing the same
+option to the `signed_form_for` method.
 
 ## Contributing
 
