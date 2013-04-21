@@ -24,7 +24,15 @@ module SignedForm
         allowed_attributes = Marshal.load Base64.strict_decode64(data)
         options            = allowed_attributes.delete(:__options__)
 
-        raise Errors::InvalidURL if options && (!options[:method].to_s.casecmp(request.method) || options[:url] != request.fullpath)
+        if options
+          if options[:method].to_s.casecmp(request.request_method) != 0
+            raise Errors::InvalidURL
+          end
+          url = url_for(options[:url])
+          if url != request.fullpath and url != request.url
+            raise Errors::InvalidURL
+          end
+        end
 
         allowed_attributes.each do |k, v|
           params[k] = params.require(k).permit(*v)
