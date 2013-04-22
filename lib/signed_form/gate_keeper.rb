@@ -41,7 +41,7 @@ module SignedForm
       return if options[:digest_expiration] && Time.now < options[:digest_expiration]
 
       digestor = options[:digest]
-      given_digest = digestor.digest
+      given_digest = digestor.to_s
       digestor.view_paths = @controller.view_paths.map(&:to_s)
       digestor.refresh
       raise Errors::ExpiredForm unless given_digest == digestor.to_s
