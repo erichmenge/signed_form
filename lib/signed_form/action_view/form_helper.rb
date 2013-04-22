@@ -9,7 +9,7 @@ module SignedForm
         options_for_form = SignedForm.options.merge options
         options_for_form[:builder] ||= SignedForm::FormBuilder
 
-        form_for(record, options_for_form) do |f|
+        send SignedForm.options[:wrap_form], record, options_for_form do |f|
           output = capture(f, &block)
           f.form_signature_tag + output
         end

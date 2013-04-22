@@ -15,7 +15,8 @@ module SignedForm
   DEFAULT_OPTIONS = {
     sign_destination:    true,
     digest:              true,
-    digest_grace_period: 300
+    digest_grace_period: 300,
+    wrap_form:           :form_for
   }.freeze
 
   class << self
