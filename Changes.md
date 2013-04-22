@@ -2,11 +2,12 @@
 
 * Move configuration options to main module name-space.
 * Add default options hash to be passed to `signed_form_for`.
+* Add a digestor to verify that out dated forms aren't being submitted.
 
 ## 0.1.2
 
 * Fix issues where request method was not being compared properly and request
-  url would not handle some potential cases leading to an erronous rejection of
+  url would not handle some potential cases leading to an erroneous rejection of
   the form. [Marc Schütz, #6]
 
 ## 0.1.1
