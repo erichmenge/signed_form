@@ -6,7 +6,7 @@ module SignedForm
 
     def self.secret_key=(key)
       SignedForm.secret_key = key
-      warn "SignedForm::HMAC.secret_key is depreciated and will be removed in the next release. "\
+      warn "SignedForm::HMAC.secret_key is deprecated and will be removed in the next release. "\
            "Please use SignedForm.secret_key instead."
     end
 
