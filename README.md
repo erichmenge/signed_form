@@ -50,7 +50,7 @@ SignedForm protects you in 3 ways:
 
 * Form fields are signed, so no alteration of the fields are allowed.
 * Form actions are signed. That means a form with an action of `/admin/users/3` will not work when submitted to `/users/3`.
-* Forms views are digested (see below). So if you remove a field from your form, old forms will not be accepted despite
+* Form views are digested (see below). So if you remove a field from your form, old forms will not be accepted despite
   a valid signature.
 
 The second two methods of security are optional and can be turned off globally or on a form by form basis.
