@@ -148,7 +148,7 @@ option to the `signed_form_for` method.
 ## I want to hear from you
 
 If you're using SignedForm, I'd love to hear from you. What do you like? What could be better? I'd love to hear your
-ideas. Join the mailing list on librelist to join the discussion at [signedform@librelist.com](mailto:signedform@librelist).
+ideas. Join the mailing list on librelist to join the discussion at [signedform@librelist.com](mailto:signedform@librelist.com).
 
 ## Contributing
 
