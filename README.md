@@ -7,6 +7,12 @@
 
 SignedForm brings new convenience and security to your Rails 4 or Rails 3 application.
 
+SignedForm is under active development. Please make sure you're reading the README associated with the version of
+SignedForm you're using. Click the tag link on GitHub to switch to the version you've installed to get the correct
+README.
+
+Or be brave and bundle the gem straight from GitHub master.
+
 ## How It Works
 
 Traditionally, when you create a form with Rails you enter your fields using something like `f.text_field :name` and so
