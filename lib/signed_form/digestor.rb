@@ -26,7 +26,7 @@ module SignedForm
     end
 
     def marshal_load(input)
-      @views, @digest = *input
+      @views, @digest = input
       @view_paths = []
       @digest.taint
     end
