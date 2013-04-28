@@ -31,14 +31,14 @@ module SignedForm
           @signed_attributes_context = options[:signed_attributes_context]
         else
           @signed_attributes = { object_name => [] }
-          @signed_attributes_context = signed_attributes[object_name]
+          @signed_attributes_context = @signed_attributes[object_name]
           prepare_signed_attributes_hash
         end
       end
 
       def form_signature_tag
-        signed_attributes.each { |k,v| v.uniq! if v.is_a?(Array) }
-        encoded_data = Base64.strict_encode64 Marshal.dump(signed_attributes)
+        @signed_attributes.each { |k,v| v.uniq! if v.is_a?(Array) }
+        encoded_data = Base64.strict_encode64 Marshal.dump(@signed_attributes)
 
         hmac = SignedForm::HMAC.new(secret_key: SignedForm.secret_key)
         signature = hmac.create(encoded_data)
@@ -74,25 +74,23 @@ module SignedForm
       #   <% end %>
       #
       def add_signed_fields(*fields)
-        signed_attributes_context.push(*fields)
+        @signed_attributes_context.push(*fields)
         options[:digest] << @template if options[:digest]
       end
 
       private
 
-      attr_reader :signed_attributes, :signed_attributes_context
-
       def prepare_signed_attributes_hash
-        signed_attributes[:_options_] = {}
+        @signed_attributes[:_options_] = {}
 
         if options[:sign_destination]
-          signed_attributes[:_options_][:method] = options[:html][:method]
-          signed_attributes[:_options_][:url]    = options[:url]
+          @signed_attributes[:_options_][:method] = options[:html][:method]
+          @signed_attributes[:_options_][:url]    = options[:url]
         end
 
         if options[:digest]
-          signed_attributes[:_options_][:digest] = options[:digest] = Digestor.new(@template)
-          signed_attributes[:_options_][:digest_expiration] = Time.now + options[:digest_grace_period] if options[:digest_grace_period]
+          @signed_attributes[:_options_][:digest] = options[:digest] = Digestor.new(@template)
+          @signed_attributes[:_options_][:digest_expiration] = Time.now + options[:digest_grace_period] if options[:digest_grace_period]
         end
       end
     end
