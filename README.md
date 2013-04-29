@@ -26,7 +26,7 @@ no more `attr_accessible`. It just works.
 
 What this looks like:
 
-``` erb
+```erb
 <%= signed_form_for(@user) do |f| %>
   <% f.add_signed_fields :zipcode, :state # Optionally add additional fields to sign %>
 
@@ -36,7 +36,7 @@ What this looks like:
 <% end %>
 ```
 
-``` ruby
+```ruby
 UsersController < ApplicationController
   def create
     @user = User.find params[:id]
@@ -73,7 +73,9 @@ SignedForm requires:
 
 Add this line to your application's Gemfile:
 
-    gem 'signed_form'
+```ruby
+gem 'signed_form'
+```
 
 And then execute:
 
@@ -87,7 +89,7 @@ If you're using Rails 4, it works out of the box.
 You'll need to include `SignedForm::ActionController::PermitSignedParams` in the controller(s) you want to use
 SignedForm with. This can be done application wide by adding the `include` to your ApplicationController.
 
-``` ruby
+```ruby
 ApplicationController < ActionController::Base
   include SignedForm::ActionController::PermitSignedParams
 
@@ -97,7 +99,9 @@ end
 
 You'll also need to create an initializer:
 
-    $ echo "SignedForm.secret_key = '$(rake secret)'" > config/initializers/signed_form.rb
+```shell
+$ echo "SignedForm.secret_key = '$(rake secret)'" > config/initializers/signed_form.rb
+```
 
 You'll probably want to keep this out of version control. Treat this key like you would your session secret, keep it
 private.
@@ -130,7 +134,7 @@ return the stored digest.
 An example config/initializers/signed_form.rb might look something like this (these are the defaults, with the exception
 of the key of course):
 
-``` ruby
+```ruby
 SignedForm.config do |c|
   c.options[:sign_destination]    = true
   c.options[:digest]              = true
