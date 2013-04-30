@@ -9,7 +9,7 @@ module SignedForm
                         :date_select, :datetime_select, :time_select,
                         :text_field, :password_field, :hidden_field,
                         :file_field, :text_area, :check_box,
-                        :radio_button, :color_field, :search_field,
+                        :radio_button, :color_field,
                         :telephone_field, :phone_field, :date_field,
                         :time_field, :datetime_field, :datetime_local_field,
                         :month_field, :week_field, :url_field,

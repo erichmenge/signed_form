@@ -98,7 +98,7 @@ describe SignedForm::FormBuilder do
                :object, :radio_button, :parent_builder,
                :collection_check_boxes, :grouped_collection_select, :select,
                :collection_select, :collection_radio_buttons, :time_select,
-               :datetime_select, :time_zone_select, :date_select]
+               :datetime_select, :time_zone_select, :date_select, :search_field]
 
     after do
       @data['user'].size.should == 1
