@@ -13,6 +13,9 @@ README.
 
 Or be brave and bundle the gem straight from GitHub master.
 
+A nicely displayed version of this README complete with table of contents is available
+[here](http://erichmenge.com/signed_form/).
+
 ## How It Works
 
 Traditionally, when you create a form with Rails you enter your fields using something like `f.text_field :name` and so
