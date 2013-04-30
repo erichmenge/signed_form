@@ -113,14 +113,14 @@ private.
 ## Form Digests
 
 SignedForm will create a digest of all the views/partials involved with rendering your form. If the form is modifed old
-forms will no longer be valid. This is done to eliminate the possibility of old forms coming back to bite you.
+forms will be expired. This is done to eliminate the possibility of old forms coming back to bite you.
 
 By default, there is a 5 minute grace period before old forms will be rejected. This is done so that if you make a
 trivial change to a form you won't prevent a form a user is currently filling out from being accepted when you
 restart your server.
 
-Of course if there is some critical mistake that was made (such as allowing an admin field to be set in the form) you
-could temporarily turn the digest system off or change the secret key to prevent any old form from getting through.
+Of course if a critical mistake is made (such as allowing an admin field to be set in the form) you could change the
+secret key to prevent any old form from getting through.
 
 By default, these digests are not cached. That means that each form that is submitted will have the views be digested
 again. Most views and partials are relatively small so the cost of computing the MD5 hash of the files is not very
