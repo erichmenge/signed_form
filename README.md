@@ -146,11 +146,62 @@ SignedForm.config do |c|
   c.digest_store = SignedForm::DigestStores::NullStore.new
   c.secret_key   = 'supersecret'
 end
-
 ```
 
 Those options that are in the options hash are the default per-form options. They can be overridden by passing the same
 option to the `signed_form_for` method.
+
+## Testing Your Controllers
+
+Because your tests won't include a signature you will get a `ForbiddenAttributes` exception in your tests that do mass
+assignment. SignedForm includes a helper that works with both TestUnit and RSpec to help.
+
+Since you're using SignedForm there is no need test attribute assignment so you may as well permit all attributes. Which
+is why the helper method is named `permit_all_attributes`. In your `spec_helper` file or `test_helper` file `require
+'signed_form/test_helper'`. Then `include SignedForm::TestHelper` in tests where you need it. An example is below.
+
+**Caution**: `permit_all_attributes` without a block modifies the singleton class of the controller instance under test which lasts for
+the duration of the test. If you want the class to be restored pass `permit_all_attributes` a block. Example:
+
+```ruby
+describe CarsController do
+  include SignedForm::TestHelper
+
+  describe "POST create" do
+    describe "with valid params" do
+      it "assigns a newly created car as @car" do
+        permit_all_parameters do
+          post :create, {:car => valid_attributes}, valid_session
+        end
+
+        assigns(:car).should be_a(Car)
+        assigns(:car).should be_persisted
+      end
+    end
+  end
+end
+```
+
+Example without a block:
+
+```ruby
+describe CarsController do
+  include SignedForm::TestHelper
+
+  describe "POST create" do
+    before { permit_all_parameters }
+
+    describe "with valid params" do
+      it "assigns a newly created car as @car" do
+        post :create, {:car => valid_attributes}, valid_session
+
+        assigns(:car).should be_a(Car)
+        assigns(:car).should be_persisted
+      end
+    end
+  end
+end
+```
 
 ## I want to hear from you
 

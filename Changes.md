@@ -3,6 +3,7 @@
 * Move configuration options to main module name-space.
 * Add default options hash to be passed to `signed_form_for`.
 * Add a digestor to verify that out dated forms aren't being submitted.
+* Add a test helper to make testing controllers easy.
 
 ## 0.1.2
 
