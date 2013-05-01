@@ -156,12 +156,13 @@ option to the `signed_form_for` method.
 Because your tests won't include a signature you will get a `ForbiddenAttributes` exception in your tests that do mass
 assignment. SignedForm includes a helper that works with both TestUnit and RSpec to help.
 
-Since you're using SignedForm there is no need test attribute assignment so you may as well permit all attributes. Which
+Since you're using SignedForm there is no need test attribute assignment so you may as well permit all parameters. Which
 is why the helper method is named `permit_all_parameters`. In your `spec_helper` file or `test_helper` file `require
 'signed_form/test_helper'`. Then `include SignedForm::TestHelper` in tests where you need it. An example is below.
 
-**Caution**: `permit_all_parameters` without a block modifies the singleton class of the controller instance under test which lasts for
-the duration of the test. If you want the class to be restored pass `permit_all_parameters` a block. Example:
+**Caution**: `permit_all_parameters` without a block modifies the singleton class of the controller under test which
+lasts for the duration of the test. If you want `permit_all_parameters` to be limited to a specific part of the test,
+pass it a block and only that block will be affected. Example:
 
 ```ruby
 describe CarsController do
