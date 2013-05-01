@@ -1,14 +1,15 @@
 module SignedForm
   module TestHelper
     def permit_all_parameters
-      @controller.singleton_class.class_eval do
+      @controller.instance_eval do
         def params
-          super.dup.permit!
+          @permit_all_parameters ||= super.permit!
         end
       end
 
       if block_given?
         yield
+        @controller.remove_instance_variable :@permit_all_parameters
         @controller.singleton_class.send :remove_method, :params
       end
     end
