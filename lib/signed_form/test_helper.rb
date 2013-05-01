@@ -3,7 +3,7 @@ module SignedForm
     def permit_all_parameters
       mod = Module.new do
         def params
-          super.permit!
+          super.dup.permit!
         end
       end
 
