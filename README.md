@@ -53,7 +53,7 @@ That's it. You're done. Need to add a field? Pop it in the form. You don't need 
 Of course, you're free to continue using the standard `form_for`. `SignedForm` is strictly opt-in. It won't change the
 way you use standard forms.
 
-## More than just Convenience &mdash; Security
+## More than just Convenience - Security
 
 SignedForm protects you in 3 ways:
 
@@ -154,11 +154,10 @@ option to the `signed_form_for` method.
 ## Testing Your Controllers
 
 Because your tests won't include a signature you will get a `ForbiddenAttributes` exception in your tests that do mass
-assignment. SignedForm includes a helper that works with both TestUnit and RSpec to help.
+assignment. SignedForm includes a test helper method, `permit_all_parameters` that works with both TestUnit and RSpec.
 
-Since you're using SignedForm there is no need test attribute assignment so you may as well permit all parameters. Which
-is why the helper method is named `permit_all_parameters`. In your `spec_helper` file or `test_helper` file `require
-'signed_form/test_helper'`. Then `include SignedForm::TestHelper` in tests where you need it. An example is below.
+In your `spec_helper` file or `test_helper` file `require 'signed_form/test_helper'`. Then `include
+SignedForm::TestHelper` in tests where you need it. An example is below.
 
 **Caution**: `permit_all_parameters` without a block modifies the singleton class of the controller under test which
 lasts for the duration of the test. If you want `permit_all_parameters` to be limited to a specific part of the test,
@@ -169,15 +168,16 @@ describe CarsController do
   include SignedForm::TestHelper
 
   describe "POST create" do
-    describe "with valid params" do
-      it "assigns a newly created car as @car" do
-        permit_all_parameters do
-          post :create, {:car => valid_attributes}, valid_session
-        end
-
-        assigns(:car).should be_a(Car)
-        assigns(:car).should be_persisted
+    it "should create a car" do
+      permit_all_parameters do
+        # This won't raise ForbiddenAttributesError
+        post :create, {:car => valid_attributes}, valid_session
       end
+
+      # This one will raise
+      post :create, {:car => valid_attributes}, valid_session
+
+      # ...
     end
   end
 end
@@ -199,6 +199,8 @@ describe CarsController do
         assigns(:car).should be_a(Car)
         assigns(:car).should be_persisted
       end
+
+      # ...
     end
   end
 end
