@@ -129,8 +129,8 @@ By default, these digests are not cached. That means that each form that is subm
 again. Most views and partials are relatively small so the cost of computing the MD5 hash of the files is not very
 expensive. However, if this is something you care about SignedForm also provides a memory store
 (`SignedForm::DigestStores::MemoryStore`) that will cache the digests in memory. Other stores could be used as well, as
-long as the class instance responds to `#fetch` taking the cache key as an argument as well as the block that will
-return the stored digest.
+long as the object responds to `#fetch` taking the cache key as an argument as well as the block that will return the
+digest.
 
 ## Example Configuration
 
