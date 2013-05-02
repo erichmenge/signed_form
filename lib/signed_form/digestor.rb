@@ -5,8 +5,8 @@ module SignedForm
     attr_accessor :view_paths
 
     def initialize(template)
-      @view_paths = Set.new []
-      @views  = Set.new []
+      @view_paths = Set.new
+      @views  = Set.new
       self << template
     end
 
