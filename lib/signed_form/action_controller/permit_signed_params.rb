@@ -18,7 +18,8 @@ module SignedForm
         gate_keeper = GateKeeper.new(self)
 
         gate_keeper.allowed_attributes.each do |k, v|
-          params[k] = params.require(k).permit(*v)
+          next if params[k].nil? || v.empty?
+          params[k] = params[k].permit(*v)
         end
       rescue Errors::ExpiredForm
         if defined?(Rails)

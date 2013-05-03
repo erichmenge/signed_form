@@ -29,8 +29,8 @@ describe SignedForm::ActionController::PermitSignedParams do
     Controller.any_instance.stub(request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users'))
     Controller.any_instance.stub(params: { "user" => { name: "Erich Menge", occupation: 'developer' } })
 
-    params.stub(:require).with('user').and_return(params)
-    params.stub(:permit).with(:name).and_return(params)
+    params.stub(:[]).and_call_original
+    params.stub(:[]).with('user').and_return(params)
   end
 
   it "should raise if signature isn't valid" do
@@ -38,38 +38,29 @@ describe SignedForm::ActionController::PermitSignedParams do
     expect { controller.permit_signed_form_data }.to raise_error(SignedForm::Errors::InvalidSignature)
   end
 
-  it "should permit attributes that are allowed" do
-    params['form_signature'] = marshal_and_sign "user" => [:name]
+  context "when the parameters are good" do
+    before { params.should_receive(:permit).with(:name).and_return(params) }
 
-    params.should_receive(:require).with('user').and_return(params)
-    params.should_receive(:permit).with(:name).and_return(params)
-    controller.permit_signed_form_data
-  end
+    it "should permit attributes that are allowed" do
+      params['form_signature'] = marshal_and_sign "user" => [:name]
+      controller.permit_signed_form_data
+    end
 
-  it "should verify current url matches targeted url" do
-    params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { method: 'post', url: '/users'  })
+    it "should verify current url matches targeted url" do
+      params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { method: 'post', url: '/users'  })
 
-    params.stub(:require).with('user').and_return(params)
-    params.stub(:permit).with(:name).and_return(params)
-    controller.request.should_receive(:fullpath).and_return '/users'
-    controller.permit_signed_form_data
+      controller.request.should_receive(:fullpath).and_return '/users'
+      controller.permit_signed_form_data
+    end
   end
 
   it "should reject if url doesn't match" do
     params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { method: 'post', url: '/admin' })
-
-    params.stub(:require).with('user').and_return(params)
-    params.stub(:permit).with(:name).and_return(params)
-
     expect { controller.permit_signed_form_data }.to raise_error(SignedForm::Errors::InvalidURL)
   end
 
   it "should reject if the method doesn't match" do
     params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { method: 'put', url: '/users' })
-
-    params.stub(:require).with('user').and_return(params)
-    params.stub(:permit).with(:name).and_return(params)
-
     expect { controller.permit_signed_form_data }.to raise_error(SignedForm::Errors::InvalidURL)
   end
 
@@ -78,19 +69,16 @@ describe SignedForm::ActionController::PermitSignedParams do
 
     it "should not reject if inside grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor, digest_expiration: Time.now + 20 })
-
       expect { controller.permit_signed_form_data }.not_to raise_error(SignedForm::Errors::ExpiredForm)
     end
 
     it "should reject if outside the grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor, digest_expiration: Time.now - 20 })
-
       expect { controller.permit_signed_form_data }.to raise_error(SignedForm::Errors::ExpiredForm)
     end
 
     it "should reject if no grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor })
-
       expect { controller.permit_signed_form_data }.to raise_error(SignedForm::Errors::ExpiredForm)
     end
   end
@@ -98,13 +86,11 @@ describe SignedForm::ActionController::PermitSignedParams do
   context "when the digest is good" do
     it "should not reject if outside grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor, digest_expiration: Time.now - 20 })
-
       expect { controller.permit_signed_form_data }.not_to raise_error(SignedForm::Errors::ExpiredForm)
     end
 
     it "should not reject if no grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor })
-
       expect { controller.permit_signed_form_data }.not_to raise_error(SignedForm::Errors::ExpiredForm)
     end
   end
