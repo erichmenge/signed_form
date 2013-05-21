@@ -40,10 +40,10 @@ describe SignedForm::Digestor do
 
   specify "#to_s should return the correct MD5 digest" do
     digestor = SignedForm::Digestor.new(template)
-    digestor.to_s.should == "4356cd5eb9f2a7086a9b1dc2abce2b60"
+    digestor.to_s.should == "7a956713f33cabd57357c70025109e69"
     template.virtual_path = "_fields"
     digestor << template
-    digestor.to_s.should == "e9811ec4fea3c91c8b581f929c73a916"
+    digestor.to_s.should == "6a161ab9978322e8251d809b3558ab1a"
   end
 
   specify "The view order should not affect the digest" do

@@ -1,4 +1,4 @@
-<%= signed_form_for :user, url: '/users', method: :post do |f| %>
+<%= form_for :user, signed: true, url: '/users', method: :post do |f| %>
   <%= f.text_field :address %>
   <%= render partial: '/fields', locals: { f: f } %>
 <% end %>

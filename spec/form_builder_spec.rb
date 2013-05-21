@@ -35,6 +35,8 @@ class ControllerRenderer < AbstractController::Base
   end
 end
 
+class MockBuilder < ActionView::Helpers::FormBuilder; end
+
 describe SignedForm::FormBuilder do
   include SignedFormViewHelper
 
@@ -44,9 +46,9 @@ describe SignedForm::FormBuilder do
   let(:user) { User.new }
   let(:widget) { Widget.new }
 
-  describe "signed_form_for tag" do
+  describe "form_for tag" do
     it "should build a form with signature" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.text_field :name
       end
 
@@ -56,6 +58,28 @@ describe SignedForm::FormBuilder do
               '</form>'
 
       content.should =~ Regexp.new(regex, Regexp::MULTILINE)
+    end
+
+    it "should not sign if no option is present" do
+      content = form_for(User.new) do |f|
+        f.text_field :name
+      end
+
+      content.should_not =~ /form_signature/
+    end
+  end
+
+  describe "third party builders" do
+    it "should build a signed form" do
+      content = form_for(User.new, signed: true, builder: MockBuilder) do |f|
+        f.text_field :name
+      end
+      data = get_data_from_form(content)
+      data['user'].should include(:name)
+    end
+
+    it "should raise if a builder isn't supported" do
+      expect { form_for(User.new, signed: true, builder: Class.new) {} }.to raise_error
     end
   end
 
@@ -68,7 +92,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should set a target" do
-      content = signed_form_for(User.new, sign_destination: true) do |f|
+      content = form_for(User.new, signed: true, sign_destination: true) do |f|
         f.text_field :name
       end
 
@@ -78,7 +102,7 @@ describe SignedForm::FormBuilder do
     it "should set a target when the default options are enabled" do
       SignedForm.options[:sign_destination] = true
 
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.text_field :name
       end
 
@@ -107,7 +131,7 @@ describe SignedForm::FormBuilder do
 
     fields.each do |field|
       it "should add to the allowed attributes when #{field} is used" do
-        content = signed_form_for(User.new) do |f|
+        content = form_for(User.new, signed: true) do |f|
           f.send field, :name
         end
 
@@ -116,7 +140,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when collection_check_boxes is used", action_pack: /4\.\d+/ do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.collection_check_boxes :name, ['a', 'b'], :to_s, :to_s
       end
 
@@ -127,7 +151,7 @@ describe SignedForm::FormBuilder do
       continent   = Struct.new('Continent', :continent_name, :countries)
       country     = Struct.new('Country', :country_id, :country_name)
 
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.grouped_collection_select(:name, [continent.new("<Africa>", [country.new("<sa>", "<South Africa>")])],
                                     :countries, :continent_name, :country_id, :country_name)
       end
@@ -136,7 +160,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when select is used" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.select :name, %w(a b)
       end
 
@@ -144,7 +168,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when collection_select is used" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.collection_select :name, %w(a b), :to_s, :to_s
       end
 
@@ -152,7 +176,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when collection_radio_buttons is used", action_pack: /4\.\d+/ do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.collection_radio_buttons :name, %w(a b), :to_s, :to_s
       end
 
@@ -160,7 +184,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when date_select is used" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.date_select :name
       end
 
@@ -168,7 +192,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when time_select is used" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.time_select :name
       end
 
@@ -176,7 +200,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when datetime_select is used" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.datetime_select :name
       end
 
@@ -184,7 +208,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when time_zone_select is used" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.time_zone_select :name
       end
 
@@ -192,7 +216,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should add to the allowed attributes when radio_button is used" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.radio_button :name, ['bar']
       end
 
@@ -202,7 +226,7 @@ describe SignedForm::FormBuilder do
 
   describe "add_signed_fields" do
     it "should add fields to the marshaled data" do
-      content = signed_form_for(User.new) do |f|
+      content = form_for(User.new, signed: true) do |f|
         f.add_signed_fields :name, :address
       end
 
@@ -216,7 +240,7 @@ describe SignedForm::FormBuilder do
     it "should nest attributes" do
       user.stub(widgets: [widget])
 
-      content = signed_form_for(user) do |f|
+      content = form_for(user, signed: true) do |f|
         f.fields_for :widgets do |ff|
           ff.text_field :name
         end
@@ -227,7 +251,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "should deeply nest attributes" do
-      content = signed_form_for(:author, url: '/') do |f|
+      content = form_for(:author, url: '/', signed: true) do |f|
         f.fields_for :books do |ff|
           ff.text_field :name
           ff.check_box :hardcover
@@ -245,7 +269,7 @@ describe SignedForm::FormBuilder do
     end
 
     specify "nested arrays should not have duplicates" do
-      content = signed_form_for(:author, url: '/') do |f|
+      content = form_for(:author, url: '/', signed: true) do |f|
         f.fields_for :books do |ff|
           ff.text_field :name
           ff.text_field :name
@@ -257,7 +281,7 @@ describe SignedForm::FormBuilder do
     end
 
     specify "attribute arrays should not have duplicates" do
-      content = signed_form_for(:author, url: '/') do |f|
+      content = form_for(:author, url: '/', signed: true) do |f|
         f.text_field :name
         f.text_field :name
       end
@@ -292,7 +316,7 @@ describe SignedForm::FormBuilder do
       data = get_data_from_form(controller.response_body)
       digestor = data[:_options_][:digest]
       digestor.view_paths = controller.view_paths
-      digestor.to_s.should == "e9811ec4fea3c91c8b581f929c73a916"
+      digestor.to_s.should == "6a161ab9978322e8251d809b3558ab1a"
     end
 
     it "should set a grace period" do
