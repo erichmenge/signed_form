@@ -4,12 +4,6 @@ module SignedForm
   class HMAC
     attr_accessor :secret_key
 
-    def self.secret_key=(key)
-      SignedForm.secret_key = key
-      warn "SignedForm::HMAC.secret_key is deprecated and will be removed in the next release. "\
-           "Please use SignedForm.secret_key instead."
-    end
-
     def initialize(options = {})
       self.secret_key = options[:secret_key]
 
