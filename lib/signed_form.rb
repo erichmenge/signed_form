@@ -17,6 +17,7 @@ module SignedForm
     sign_destination:    true,
     digest:              true,
     digest_grace_period: 300,
+    signed:              false
   }.freeze
 
   class << self

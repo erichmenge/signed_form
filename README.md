@@ -172,6 +172,7 @@ SignedForm.config do |c|
   c.options[:sign_destination]    = true
   c.options[:digest]              = true
   c.options[:digest_grace_period] = 300
+  c.options[:signed]              = false # If true, sign all forms by default
 
   c.digest_store = SignedForm::DigestStores::NullStore.new
   c.secret_key   = 'supersecret'

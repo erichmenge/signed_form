@@ -67,6 +67,26 @@ describe SignedForm::FormBuilder do
 
       content.should_not =~ /form_signature/
     end
+
+    context "signed default" do
+      before { SignedForm.options[:signed] = true }
+
+      it "should sign a form when the default option is set" do
+        content = form_for(User.new) do |f|
+          f.text_field :name
+        end
+
+        content.should =~ /form_signature/
+      end
+
+      it "should allow the form to be overriden" do
+        content = form_for(User.new, signed: false) do |f|
+          f.text_field :name
+        end
+
+        content.should_not =~ /form_signature/
+      end
+    end
   end
 
   describe "third party builders" do
