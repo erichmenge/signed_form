@@ -17,7 +17,7 @@ module SignedForm
     sign_destination:    true,
     digest:              true,
     digest_grace_period: 300,
-    wrap_form:           :form_for
+    signed:              false
   }.freeze
 
   class << self

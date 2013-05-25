@@ -1,12 +1,15 @@
 ## 0.2.0 (Unreleased)
 
+* Instead of using `signed_form_for` add an option for form signing to `form_for` so that signing third party builders
+  like SimpleForm doesn't require an adapter.
 * Move configuration options to main module name-space.
-* Add default options hash to be passed to `signed_form_for`.
+* Add default options hash to be passed to `form_for`.
 * Add a digestor to verify that out dated forms aren't being submitted.
 * Add a test helper to make testing controllers easy.
 * Only permit parameters but don't require them. Requiring them raises an exception if they're missing from the form
   submission. But in cases where other parameters are sent as well and the form object may be optional this would raise
   an exception that would be undesired.
+* Allow all forms to be signed by default.
 
 ## 0.1.2
 

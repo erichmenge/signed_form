@@ -30,7 +30,7 @@ no more `attr_accessible`. It just works.
 What this looks like:
 
 ```erb
-<%= signed_form_for(@user) do |f| %>
+<%= form_for @user, signed: true do |f| %>
   <% f.add_signed_fields :zipcode, :state # Optionally add additional fields to sign %>
 
   <%= f.text_field :name %>
@@ -111,7 +111,37 @@ private.
 
 ## Support for other Builders
 
-* [SimpleForm Adapter](https://github.com/erichmenge/signed_form-simple_form)
+Any form that wraps `form_for` and the default field helpers will work with SignedForm. For example, a signed SimpleForm
+might look like this:
+
+```erb
+<%= simple_form_for @user, signed: true do |f|
+  f.input :name
+<% end %>
+```
+
+This will create a signed form as expected.
+
+For builders that don't use the standard field helpers under the hood, you can create an adapter like this:
+
+```ruby
+class MyAdapter < SomeOtherBuilder
+  include SignedForm::FormBuilder
+
+  def some_helper(field, *other_args)
+    add_signed_fields field
+    super
+  end
+end
+```
+
+Then in your view:
+
+```erb
+<%= form_for @user, signed: true, builder: MyAdapter do |f| %>
+  <%= f.some_helper :name %>
+<% end %>
+```
 
 ## Form Digests
 
@@ -142,6 +172,7 @@ SignedForm.config do |c|
   c.options[:sign_destination]    = true
   c.options[:digest]              = true
   c.options[:digest_grace_period] = 300
+  c.options[:signed]              = false # If true, sign all forms by default
 
   c.digest_store = SignedForm::DigestStores::NullStore.new
   c.secret_key   = 'supersecret'
@@ -149,7 +180,7 @@ end
 ```
 
 Those options that are in the options hash are the default per-form options. They can be overridden by passing the same
-option to the `signed_form_for` method.
+option to the `form_for` method.
 
 ## Testing Your Controllers
 
