@@ -115,7 +115,7 @@ Any form that wraps `form_for` and the default field helpers will work with Sign
 might look like this:
 
 ```erb
-<%= simple_form_for @user, signed: true do |f|
+<%= simple_form_for @user, signed: true do |f| %>
   f.input :name
 <% end %>
 ```
