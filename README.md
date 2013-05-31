@@ -41,7 +41,7 @@ What this looks like:
 
 ```ruby
 UsersController < ApplicationController
-  def create
+  def update
     @user = User.find params[:id]
     @user.update_attributes params[:user]
   end
