@@ -11,18 +11,18 @@ module SignedForm
           return super
         end
 
-        options_for_form = SignedForm.options.merge options
-        options_for_form[:builder] ||= ::ActionView::Helpers::FormBuilder
+        options = SignedForm.options.merge options
+        options[:builder] ||= ::ActionView::Helpers::FormBuilder
 
-        ancestors = options_for_form[:builder].ancestors
+        ancestors = options[:builder].ancestors
 
         if !ancestors.include?(::ActionView::Helpers::FormBuilder) && !ancestors.include?(SignedForm::FormBuilder)
           raise "Form signing not supported on builders that don't subclass ActionView::Helpers::FormBuilder or include SignedForm::FormBuilder"
         elsif !ancestors.include?(SignedForm::FormBuilder)
-          options_for_form[:builder] = SignedForm::FormBuilder::BUILDERS[options_for_form[:builder]]
+          options[:builder] = SignedForm::FormBuilder::BUILDERS[options[:builder]]
         end
 
-        super record, options_for_form do |f|
+        super record, options do |f|
           output = capture(f, &block)
           f.form_signature_tag + output
         end
