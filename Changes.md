@@ -1,4 +1,4 @@
-## 0.2.0 (Unreleased)
+## 0.2.0
 
 * Instead of using `signed_form_for` add an option for form signing to `form_for` so that signing third party builders
   like SimpleForm doesn't require an adapter.
