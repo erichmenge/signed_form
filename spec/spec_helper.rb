@@ -68,9 +68,9 @@ RSpec.configure do |config|
   config.order = 'random'
 
   config.around(:each) do |example|
-    prestine_module = SignedForm.dup
+    pristine_module = SignedForm.dup
     example.run
     Object.send :remove_const, :SignedForm
-    SignedForm = prestine_module
+    SignedForm = pristine_module
   end
 end
