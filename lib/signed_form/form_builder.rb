@@ -9,22 +9,27 @@ module SignedForm
                       :telephone_field, :phone_field, :date_field,
                       :time_field, :datetime_field, :datetime_local_field,
                       :month_field, :week_field, :url_field,
-                      :email_field, :number_field, :range_field]
-
-    FIELDS_TO_SIGN.delete_if { |e| !::ActionView::Helpers::FormBuilder.instance_methods.include?(e) }
-    FIELDS_TO_SIGN.freeze
-
-    FIELDS_TO_SIGN.each do |h|
-      define_method(h) do |field, *args|
-        add_signed_fields field
-        super(field, *args)
-      end
-    end
+                      :email_field, :number_field, :range_field].freeze
 
     BUILDERS = Hash.new do |h,k|
       h[k] = Class.new(k) do
         include FormBuilder
       end
+    end
+
+    def self.included(base)
+      mod = Module.new do
+        FIELDS_TO_SIGN.each do |h|
+          next unless base.instance_methods.include?(h)
+
+          define_method(h) do |field, *args|
+            add_signed_fields field
+            super(field, *args)
+          end
+        end
+      end
+
+      base.send :include, mod
     end
 
     def initialize(*)
