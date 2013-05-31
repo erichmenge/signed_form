@@ -120,7 +120,7 @@ might look like this:
 
 ```erb
 <%= simple_form_for @user, signed: true do |f| %>
-  f.input :name
+  <%= f.input :name %>
 <% end %>
 ```
 
