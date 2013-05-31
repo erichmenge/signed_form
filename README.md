@@ -53,6 +53,10 @@ That's it. You're done. Need to add a field? Pop it in the form. You don't need 
 Of course, you're free to continue using the standard `form_for`. `SignedForm` is strictly opt-in. It won't change the
 way you use standard forms.
 
+## Is it any good?
+
+Yes.
+
 ## More than just Convenience - Security
 
 SignedForm protects you in 3 ways:
