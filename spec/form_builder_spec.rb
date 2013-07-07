@@ -310,6 +310,22 @@ describe SignedForm::FormBuilder do
       data = get_data_from_form(content)
       data[:author].size.should == 1
     end
+
+    specify "multiple fields_for should create one hash only" do
+      content = form_for(:author, url: '/', signed: true) do |f|
+        f.fields_for :books do |ff|
+          ff.text_field :name
+        end
+        f.fields_for :books do |ff|
+          ff.text_field :price
+        end
+        f.fields_for :pets do |ff|
+          ff.text_field :name
+        end
+      end
+      data = get_data_from_form(content)
+      data[:author].size.should == 1
+    end
   end
 
   describe "form digests" do

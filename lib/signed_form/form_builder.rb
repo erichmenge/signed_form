@@ -40,6 +40,7 @@ module SignedForm
 
     def form_signature_tag
       @signed_attributes.each { |k,v| v.uniq! if v.is_a?(Array) }
+      recursive_merge_identical_hashes! @signed_attributes
       encoded_data = Base64.strict_encode64 Marshal.dump(@signed_attributes)
 
       hmac = SignedForm::HMAC.new(secret_key: SignedForm.secret_key)
@@ -93,6 +94,26 @@ module SignedForm
       if options[:digest]
         @signed_attributes[:_options_][:digest] = options[:digest] = Digestor.new(@template)
         @signed_attributes[:_options_][:digest_expiration] = Time.now + options[:digest_grace_period] if options[:digest_grace_period]
+      end
+    end
+
+    def recursive_merge_identical_hashes! hash
+      hash.each do |k,v|
+        hashes = []
+        hash[k] = v.reject do |attr|
+          attr.is_a?(Hash) && hashes << attr
+        end
+        unless hashes.empty?
+          sub_attrs = Hash.new {|hash,key| hash[key] = []}
+          hashes.each do |h|
+            h.each do |subk,subv|
+              sub_attrs[subk] += subv
+            end
+          end
+          recursive_merge_identical_hashes! sub_attrs
+          sub_attrs.default = nil
+          hash[k] << sub_attrs
+        end
       end
     end
   end
