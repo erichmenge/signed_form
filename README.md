@@ -1,8 +1,3 @@
-# THIS REPO IS NO LONGER MAINTAINED
-
-I no longer have the time to maintain this software. I think it is good software so if you want to give it a good home
-and become the maintainer of it, send me an [e-mail](mailto:erich@erichmenge.com) and let me know.
-
 # SignedForm
 
 [![Gem Version](https://badge.fury.io/rb/signed_form.png)](http://badge.fury.io/rb/signed_form)
