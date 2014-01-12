@@ -22,6 +22,7 @@ end
 
 class ControllerRenderer < AbstractController::Base
   include AbstractController::Rendering
+  include ActionView::Rendering if defined? ActionView::Rendering
   self.view_paths = [ActionView::FileSystemResolver.new(File.join(File.dirname(__FILE__), 'fixtures', 'views'))]
 
   view_context_class.class_eval do
