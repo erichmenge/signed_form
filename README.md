@@ -147,6 +147,10 @@ Then in your view:
 <% end %>
 ```
 
+## ActiveAdmin support
+
+Gem [`signed_form-activeadmin`](https://github.com/cschramm/signed_form-activeadmin) integrates SignedForm with Active Admin.
+
 ## Form Digests
 
 SignedForm will create a digest of all the views/partials involved with rendering your form. If the form is modifed old
