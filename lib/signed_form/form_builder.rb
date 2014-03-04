@@ -1,7 +1,8 @@
 module SignedForm
   module FormBuilder
-    FIELDS_TO_SIGN = [:select, :collection_select, :grouped_collection_select,
-                      :time_zone_select, :collection_radio_buttons, :collection_check_boxes,
+    FIELDS_TO_SIGN = [{:select => :multiple_select?}, {:collection_select => :multiple_select?},
+                      {:grouped_collection_select => :multiple_select?},
+                      :time_zone_select, :collection_radio_buttons, {:collection_check_boxes => []},
                       :date_select, :datetime_select, :time_select,
                       :text_field, :password_field, :hidden_field,
                       :file_field, :text_area, :check_box,
@@ -11,13 +12,21 @@ module SignedForm
                       :month_field, :week_field, :url_field,
                       :email_field, :number_field, :range_field]
 
-    FIELDS_TO_SIGN.delete_if { |e| !::ActionView::Helpers::FormBuilder.instance_methods.include?(e) }
+    FIELDS_TO_SIGN.delete_if { |e| !::ActionView::Helpers::FormBuilder.instance_methods.include?(e.is_a?(Symbol) ? e : e.keys.first) }
     FIELDS_TO_SIGN.freeze
 
     FIELDS_TO_SIGN.each do |kind|
+      kind, v = kind.is_a?(Symbol) ? [kind, nil] : kind.first
       define_method(kind) do |field, *args|
         options = args.last.is_a?(Hash) ? args.last : {}
-        add_signed_fields(field) unless options[:disabled]
+        value = v.is_a?(Symbol) ? send(v, field, *args) : v
+        unless options[:disabled]
+          if value
+            add_signed_fields field => value
+          else
+            add_signed_fields field
+          end
+        end
         super(field, *args)
       end
     end
@@ -116,6 +125,11 @@ module SignedForm
           hash[k] << sub_attrs
         end
       end
+    end
+
+    def multiple_select? field, *args
+      options = args.last.is_a?(::Hash) ? args.last : {}
+      options[:multiple] ? [] : nil
     end
   end
 end

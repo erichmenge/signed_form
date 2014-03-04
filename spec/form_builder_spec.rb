@@ -160,14 +160,6 @@ describe SignedForm::FormBuilder do
       end
     end
 
-    it "should add to the allowed attributes when collection_check_boxes is used", action_pack: /4\.\d+/ do
-      content = form_for(User.new, signed: true) do |f|
-        f.collection_check_boxes :name, ['a', 'b'], :to_s, :to_s
-      end
-
-      @data = get_data_from_form(content)
-    end
-
     it "should add to the allowed attributes when grouped_collection_select is used" do
       continent   = Struct.new('Continent', :continent_name, :countries)
       country     = Struct.new('Country', :country_id, :country_name)
@@ -253,6 +245,54 @@ describe SignedForm::FormBuilder do
 
       data = get_data_from_form(content)
       data["user"].should be_empty
+    end
+  end
+
+  describe "form inputs that submit multiple values" do
+    after do
+      @data['user'].size.should == 1
+      @data['user'].should_not include(:name)
+      @data['user'].should include({:name => []})
+    end
+
+    it "should add a hash with an empty array when collection_check_boxes is used", action_pack: /4\.\d+/ do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_check_boxes :name, ['a', 'b'], :to_s, :to_s
+      end
+
+      @data = get_data_from_form(content)
+    end
+
+    it "should add a hash with an empty array when collection_select(..., multiple: true) is used" do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_select :name, %w(a b), :to_s, :to_s, multiple: true
+      end
+
+      @data = get_data_from_form(content)
+    end
+  end
+
+  describe "form inputs that don't submit multiple values" do
+    after do
+      @data['user'].size.should == 1
+      @data['user'].should include(:name)
+      @data['user'].should_not include({:name => []})
+    end
+
+    it "shouldn't add a hash with an empty array when collection_radio_buttons is used", action_pack: /4\.\d+/ do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_radio_buttons :name, ['a', 'b'], :to_s, :to_s
+      end
+
+      @data = get_data_from_form(content)
+    end
+
+    it "shouldn't add a hash with an empty array when collection_select(..., multiple: false) is used" do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_select :name, %w(a b), :to_s, :to_s, multiple: false
+      end
+
+      @data = get_data_from_form(content)
     end
   end
 
