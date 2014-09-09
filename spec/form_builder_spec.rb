@@ -3,7 +3,7 @@ require 'spec_helper'
 class User
   extend ActiveModel::Naming
 
-  attr_accessor :name, :widgets_attributes
+  attr_accessor :name, :options, :widgets_attributes
 
   def to_key
     [1]
@@ -127,6 +127,32 @@ describe SignedForm::FormBuilder do
         f.text_field :name
       end
 
+      @data = get_data_from_form(content)
+    end
+  end
+
+  describe "form collection inputs" do
+    after do
+      @data['user'].size.should == 1
+      @data['user'].should include({:options=>[]})
+    end
+
+    it "should add to the allowed attributes when collection_check_boxes is used", action_pack: /4\.\d+/ do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_check_boxes :options, ['a', 'b'], :to_s, :to_s
+      end
+
+      @data = get_data_from_form(content)
+    end
+
+    it 'should pass a given block to the input helper method' do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_check_boxes :options, ['a'], :to_s, :to_s, {}, {} do |b|
+          'teststring'
+        end
+      end
+
+      content.should include 'teststring'
       @data = get_data_from_form(content)
     end
   end

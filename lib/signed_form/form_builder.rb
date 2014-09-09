@@ -17,7 +17,7 @@ module SignedForm
 
     FIELDS_TO_SIGN.each do |kind|
       kind, v = kind.is_a?(Symbol) ? [kind, nil] : kind.first
-      define_method(kind) do |field, *args|
+      define_method(kind) do |field, *args, &block|
         options = args.last.is_a?(Hash) ? args.last : {}
         value = v.is_a?(Symbol) ? send(v, field, *args) : v
         unless options[:disabled]
@@ -27,7 +27,7 @@ module SignedForm
             add_signed_fields field
           end
         end
-        super(field, *args)
+        super(field, *args, &block)
       end
     end
 
