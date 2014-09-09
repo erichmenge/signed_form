@@ -168,6 +168,17 @@ describe SignedForm::FormBuilder do
       @data = get_data_from_form(content)
     end
 
+    it 'should pass a given block to the input helper method' do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_check_boxes :name, ['a'], :to_s, :to_s, {}, {} do |b|
+          'teststring'
+        end
+      end
+
+      content.should include 'teststring'
+      @data = get_data_from_form(content)
+    end
+
     it "should add to the allowed attributes when grouped_collection_select is used" do
       continent   = Struct.new('Continent', :continent_name, :countries)
       country     = Struct.new('Country', :country_id, :country_name)

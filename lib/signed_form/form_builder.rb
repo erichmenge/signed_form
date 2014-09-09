@@ -15,9 +15,9 @@ module SignedForm
     FIELDS_TO_SIGN.freeze
 
     FIELDS_TO_SIGN.each do |h|
-      define_method(h) do |field, *args|
+      define_method(h) do |field, *args, &block|
         add_signed_fields field
-        super(field, *args)
+        super(field, *args, &block)
       end
     end
 
