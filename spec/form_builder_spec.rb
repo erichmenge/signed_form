@@ -245,6 +245,17 @@ describe SignedForm::FormBuilder do
     end
   end
 
+  describe "disabled form inputs" do
+    it "should be explicitly signed" do
+      content = form_for(User.new, signed: true) do |f|
+        f.text_field :name, disabled: true
+      end
+
+      data = get_data_from_form(content)
+      data["user"].should be_empty
+    end
+  end
+
   describe "add_signed_fields" do
     it "should add fields to the marshaled data" do
       content = form_for(User.new, signed: true) do |f|
