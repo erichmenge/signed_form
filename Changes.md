@@ -1,3 +1,20 @@
+## 0.3.0
+
+* Hidden fields are no longer signed by default.
+  To include a hidden field, explicitly sign it with `f.add_signed_fields field_name`
+  Contributed by James Moriarty <jamespaulmoriarty@gmail.com>
+
+* Fix multiple fields_for calls
+  Prior to this fix, only the last of the calls would be passed.
+  Contributed by Marc Schütz <schuetzm@gmx.net>
+
+* ActiveAdmin integration
+  CSchramm has created a plugin that integrates both activeadmin and signed_form
+  Contributed by Christopher Schramm <cschramm@shakaweb.org>
+
+* Tests pass under Rails 4.1
+  Contributed by Christopher Schramm <cschramm@shakaweb.org>
+
 ## 0.2.0
 
 * Instead of using `signed_form_for` add an option for form signing to `form_for` so that signing third party builders
