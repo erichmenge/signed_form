@@ -6,8 +6,8 @@ require 'signed_form/version'
 Gem::Specification.new do |spec|
   spec.name          = "signed_form"
   spec.version       = SignedForm::VERSION
-  spec.authors       = ["Erich Menge"]
-  spec.email         = ["erichmenge@gmail.com"]
+  spec.authors       = ["Erich Menge", "Johnneylee Jack Rollins"]
+  spec.email         = ["erichmenge@gmail.com", "Johnneylee.Rollins@gmail.com"]
   spec.description   = %q{Rails signed form security}
   spec.summary       = %q{Rails signed form security}
   spec.homepage      = "https://github.com/erichmenge/signed_form"
