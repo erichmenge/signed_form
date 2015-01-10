@@ -48,6 +48,17 @@ UsersController < ApplicationController
 end
 ```
 
+Disabled fields need to be explicitly signed:
+
+```erb
+<%= form_for @user, signed: true do |f| %>
+<% f.add_signed_fields :name %>
+
+<%= f.text_field :name, disabled: true %>
+<%= f.submit %>
+<% end %>
+```
+
 That's it. You're done. Need to add a field? Pop it in the form. You don't need to then update a list of attributes.
 
 Of course, you're free to continue using the standard `form_for`. `SignedForm` is strictly opt-in. It won't change the

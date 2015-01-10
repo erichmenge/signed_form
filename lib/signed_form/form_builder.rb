@@ -14,9 +14,10 @@ module SignedForm
     FIELDS_TO_SIGN.delete_if { |e| !::ActionView::Helpers::FormBuilder.instance_methods.include?(e) }
     FIELDS_TO_SIGN.freeze
 
-    FIELDS_TO_SIGN.each do |h|
-      define_method(h) do |field, *args|
-        add_signed_fields field
+    FIELDS_TO_SIGN.each do |kind|
+      define_method(kind) do |field, *args|
+        options = args.last.is_a?(Hash) ? args.last : {}
+        add_signed_fields(field) unless options[:disabled]
         super(field, *args)
       end
     end
