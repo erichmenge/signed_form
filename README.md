@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/erichmenge/signed_form.png?branch=master)](https://travis-ci.org/erichmenge/signed_form)
 [![Code Climate](https://codeclimate.com/github/erichmenge/signed_form.png)](https://codeclimate.com/github/erichmenge/signed_form)
 [![Coverage Status](https://coveralls.io/repos/erichmenge/signed_form/badge.png?branch=master)](https://coveralls.io/r/erichmenge/signed_form)
+[![Inline docs](http://inch-ci.org/github/erichmenge/signed_form.svg?branch=master&style=flat)](https://inch-ci.org/github/erichmenge/signed_form)
 
 SignedForm brings new convenience and security to your Rails 4 or Rails 3 application.
 
