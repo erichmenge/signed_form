@@ -116,7 +116,7 @@ ApplicationController < ActionController::Base
 end
 ```
 
-You'll also need to create an initializer:
+On Rails versions older than 4.1, you'll also need to create an initializer:
 
 ```shell
 $ echo "SignedForm.secret_key = '$(rake secret)'" > config/initializers/signed_form.rb
