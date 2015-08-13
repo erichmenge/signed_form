@@ -9,6 +9,10 @@ case rails_version
 when /master/
   gem "rails", github: "rails/rails"
   gem "arel", github: "rails/arel"
+when /4-2-stable/
+  gem "rails", github: "rails/rails", branch: "4-2-stable"
+when /4-1-stable/
+  gem "rails", github: "rails/rails", branch: "4-1-stable"
 when /4-0-stable/
   gem "rails", github: "rails/rails", branch: "4-0-stable"
 when /3-2-stable/
