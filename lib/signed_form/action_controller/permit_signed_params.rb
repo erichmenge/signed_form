@@ -5,7 +5,11 @@ module SignedForm
     # Include it in controllers that will be receiving signed forms.
     module PermitSignedParams
       def self.included(base)
-        base.prepend_before_filter :permit_signed_form_data
+        if base.respond_to? :prepend_before_action
+            base.prepend_before_action :permit_signed_form_data
+        else
+            base.prepend_before_filter :permit_signed_form_data
+        end
 
         gem 'strong_parameters' unless defined?(::ActionController::Parameters)
       end
