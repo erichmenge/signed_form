@@ -8,6 +8,12 @@ module SignedForm
       self.secret_key = options[:secret_key]
 
       if secret_key.nil? || secret_key.empty?
+        if defined?(::Rails) and ::Rails.application.respond_to?(:secrets)
+          self.secret_key = ::Rails.application.secrets.secret_key_base
+        end
+      end
+
+      if secret_key.nil? || secret_key.empty?
         raise Errors::NoSecretKey, "Please consult the README for instructions on creating a secret key"
       end
     end
