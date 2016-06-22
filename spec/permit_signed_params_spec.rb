@@ -23,10 +23,12 @@ describe SignedForm::ActionController::PermitSignedParams do
     "#{encoded_data}--#{signature}"
   end
 
+  Object.send(:remove_const, :Rails) if defined?(Rails)
+
   before do
     SignedForm.secret_key = "abc123"
 
-    Controller.any_instance.stub(request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users'))
+    Controller.any_instance.stub(request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users', variant: nil))
     Controller.any_instance.stub(params: { "user" => { name: "Erich Menge", occupation: 'developer' } })
 
     params.stub(:[]).and_call_original
