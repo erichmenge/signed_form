@@ -159,7 +159,7 @@ describe SignedForm::FormBuilder do
 
   describe "form inputs" do
     fields  = ActionView::Helpers::FormBuilder.instance_methods - Object.instance_methods
-    fields -= [:button, :multipart=, :submit,
+    fields -= [:button, :multipart=, :submit, :fields,
                :field_helpers, :label, :multipart,
                :emitted_hidden_id?, :to_model, :field_helpers?,
                :field_helpers=, :fields_for, :object_name=,
