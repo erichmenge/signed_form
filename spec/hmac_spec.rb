@@ -18,7 +18,7 @@ describe SignedForm::HMAC do
     let(:hmac) { SignedForm::HMAC.new(secret_key: "superdupersecret") }
     let(:signature) { hmac.create "My super secret" }
 
-    specify { hmac.verify(signature, "My super secret").should be_true }
-    specify { hmac.verify(signature, "My bad secret").should_not be_true }
+    specify { hmac.verify(signature, "My super secret").should be_truthy }
+    specify { hmac.verify(signature, "My bad secret").should_not be_truthy }
   end
 end

@@ -10,7 +10,6 @@ require "signed_form/digestor"
 require "signed_form/action_view/form_helper"
 require "signed_form/gate_keeper"
 require "signed_form/action_controller/permit_signed_params"
-require "signed_form/engine" if defined?(Rails)
 
 module SignedForm
   DEFAULT_OPTIONS = {

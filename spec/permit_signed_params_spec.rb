@@ -23,11 +23,13 @@ describe SignedForm::ActionController::PermitSignedParams do
     "#{encoded_data}--#{signature}"
   end
 
+  Object.send(:remove_const, :Rails) if defined?(Rails)
+
   before do
     SignedForm.secret_key = "abc123"
 
-    Controller.any_instance.stub(request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users'))
-    Controller.any_instance.stub(params: { "user" => { name: "Erich Menge", occupation: 'developer' } })
+    Controller.any_instance.stub(request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users', variant: nil))
+    Controller.any_instance.stub(params: ActionController::Parameters.new("user" => { name: "Erich Menge", occupation: 'developer' }))
 
     params.stub(:[]).and_call_original
     params.stub(:[]).with('user').and_return(params)
@@ -69,7 +71,7 @@ describe SignedForm::ActionController::PermitSignedParams do
 
     it "should not reject if inside grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor, digest_expiration: Time.now + 20 })
-      expect { controller.permit_signed_form_data }.not_to raise_error(SignedForm::Errors::ExpiredForm)
+      expect { controller.permit_signed_form_data }.not_to raise_error
     end
 
     it "should reject if outside the grace period" do
@@ -86,12 +88,12 @@ describe SignedForm::ActionController::PermitSignedParams do
   context "when the digest is good" do
     it "should not reject if outside grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor, digest_expiration: Time.now - 20 })
-      expect { controller.permit_signed_form_data }.not_to raise_error(SignedForm::Errors::ExpiredForm)
+      expect { controller.permit_signed_form_data }.not_to raise_error
     end
 
     it "should not reject if no grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor })
-      expect { controller.permit_signed_form_data }.not_to raise_error(SignedForm::Errors::ExpiredForm)
+      expect { controller.permit_signed_form_data }.not_to raise_error
     end
   end
 end
