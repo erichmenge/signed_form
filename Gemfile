@@ -12,5 +12,5 @@ when /master/
 when /-stable$/
   gem 'rails', github: 'rails/rails', branch: rails_version
 else
-  gem 'rails', ENV['RAILS_VERSION']
+  gem 'rails', rails_version
 end

@@ -53,8 +53,7 @@ Released by Johnneylee Jack Rollins <Johnneylee.Rollins@gmail.com>
   Contributed by Marc Schütz <schuetzm@gmx.net>
 
 * ActiveAdmin integration  
-  CSchramm has created a plugin that integrates both activeadmin and  
-  signed_form  
+  CSchramm has created a plugin that integrates both activeadmin and signed_form  
   Contributed by Christopher Schramm <cschramm@shakaweb.org>
 
 * Tests pass under Rails 4.1  
