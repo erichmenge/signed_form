@@ -1,15 +1,17 @@
-require "action_view"
-require "action_controller"
+# frozen_string_literal: true
 
-require "signed_form/version"
-require "signed_form/errors"
-require "signed_form/form_builder"
-require "signed_form/hmac"
-require "signed_form/digest_stores"
-require "signed_form/digestor"
-require "signed_form/action_view/form_helper"
-require "signed_form/gate_keeper"
-require "signed_form/action_controller/permit_signed_params"
+require 'action_view'
+require 'action_controller'
+
+require 'signed_form/version'
+require 'signed_form/errors'
+require 'signed_form/form_builder'
+require 'signed_form/hmac'
+require 'signed_form/digest_stores'
+require 'signed_form/digestor'
+require 'signed_form/action_view/form_helper'
+require 'signed_form/gate_keeper'
+require 'signed_form/action_controller/permit_signed_params'
 
 module SignedForm
   DEFAULT_OPTIONS = {
@@ -34,6 +36,14 @@ module SignedForm
 
     def config
       yield self
+    end
+
+    def tokenize(attributes = {})
+      encoded_data = Base64.strict_encode64 Marshal.dump(attributes)
+      hmac = HMAC.new(secret_key: secret_key)
+      signature = hmac.create(encoded_data)
+
+      "#{encoded_data}--#{signature}"
     end
   end
 end

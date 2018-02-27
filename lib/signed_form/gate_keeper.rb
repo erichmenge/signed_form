@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SignedForm
   class GateKeeper
     attr_reader :allowed_attributes
@@ -22,7 +24,7 @@ module SignedForm
 
       signature ||= ''
 
-      raise Errors::InvalidSignature, "Form signature is not valid" unless hmac.verify signature, data
+      raise Errors::InvalidSignature, 'Form signature is not valid' unless hmac.verify signature, data
 
       @allowed_attributes = Marshal.load Base64.strict_decode64(data)
       @options            = allowed_attributes.delete(:_options_)
@@ -31,7 +33,7 @@ module SignedForm
     def verify_destination
       return unless options[:method] && options[:url]
       raise Errors::InvalidURL if options[:method].to_s.casecmp(@request.request_method) != 0
-      url = @controller.url_for(options[:url])
+      url = @controller.url_for(options[:url]).split('#').first
       raise Errors::InvalidURL if url != @request.fullpath && url != @request.url
     end
 
