@@ -4,7 +4,6 @@ require 'action_controller'
 require 'active_model'
 require 'action_controller'
 require 'active_support/core_ext'
-require 'byebug'
 
 require 'coveralls'
 Coveralls.wear! do
