@@ -1,0 +1,52 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        ruby:
+          - 2.7.6
+          - 3.0.4
+          - 3.1.2
+        rails:
+          - 5.2.8.1
+          - 6.1.7
+        experimental:
+          - false
+        include:
+          - ruby: 2.7.6
+            rails: 7.0.4
+            experimental: true
+          - ruby: 3.0.4
+            rails: 7.0.4
+            experimental: true
+          - ruby: 3.1.2
+            rails: 7.0.4
+            experimental: true
+          - ruby: 2.7.6
+            rails: master
+            experimental: true
+          - ruby: 3.0.4
+            rails: master
+            experimental: true
+          - ruby: 3.1.2
+            rails: master
+            experimental: true
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+      env:
+        RAILS_VERSION: ${{ matrix.rails }}
+    - run: bundle exec rspec
+      env:
+        RAILS_VERSION: ${{ matrix.rails }}

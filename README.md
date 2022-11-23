@@ -1,7 +1,7 @@
 # SignedForm
 
 [![Gem Version](https://badge.fury.io/rb/signed_form.png)](http://badge.fury.io/rb/signed_form)
-[![Build Status](https://travis-ci.org/erichmenge/signed_form.png?branch=master)](https://travis-ci.org/erichmenge/signed_form)
+![.github/workflows/tests.yml](https://github.com/erichmenge/signed_form/workflows/.github/workflows/tests.yml/badge.svg)
 [![Code Climate](https://codeclimate.com/github/erichmenge/signed_form.png)](https://codeclimate.com/github/erichmenge/signed_form)
 [![Coverage Status](https://coveralls.io/repos/erichmenge/signed_form/badge.png?branch=master)](https://coveralls.io/r/erichmenge/signed_form)
 [![Inline docs](http://inch-ci.org/github/erichmenge/signed_form.svg?branch=master&style=flat)](https://inch-ci.org/github/erichmenge/signed_form)
