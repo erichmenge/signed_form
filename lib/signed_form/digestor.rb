@@ -28,7 +28,7 @@ module SignedForm
     def marshal_load(input)
       @views, @digest = input
       @view_paths = []
-      @digest.taint
+      @digest.taint if RUBY_VERSION < '2.7'
     end
 
     def to_s
