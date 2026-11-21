@@ -1,4 +1,4 @@
-## 0.6.0 (unreleased)
+## 0.6.0
 
 Thank you to [@dxg][] for getting destination signing working on Rails 7
 and for testing SignedForm across Ruby and Rails versions.
