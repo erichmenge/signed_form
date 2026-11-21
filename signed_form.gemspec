@@ -18,14 +18,13 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec", "~> 2.13"
+  spec.add_development_dependency "rspec", "~> 3.13"
   spec.add_development_dependency "activemodel", ">= 4.2"
-  spec.add_development_dependency "coveralls"
 
   spec.add_dependency "actionpack", ">= 4.2"
+  spec.add_dependency "base64"
   spec.add_dependency "psych", ">= 2.0"
 
-  spec.required_ruby_version = '>= 2.4'
+  spec.required_ruby_version = '>= 3.3'
 end

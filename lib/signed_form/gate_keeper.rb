@@ -19,14 +19,8 @@ module SignedForm
     end
 
     def extract_and_verify_form_signature
-      data, signature = @params['form_signature'].split('--', 2)
-      hmac = SignedForm::HMAC.new secret_key: SignedForm.secret_key
-
-      signature ||= ''
-
-      raise Errors::InvalidSignature, 'Form signature is not valid' unless hmac.verify signature, data
-
-      @allowed_attributes = Marshal.load Base64.strict_decode64(data)
+      signed_data = SignedForm::SignedData.new(secret_key: SignedForm.secret_key)
+      @allowed_attributes = signed_data.verify(@params['form_signature'])
       @options            = allowed_attributes.delete(:_options_)
     end
 

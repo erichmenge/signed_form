@@ -1,13 +1,9 @@
 # SignedForm
 
-[![Gem Version](https://badge.fury.io/rb/signed_form.png)](http://badge.fury.io/rb/signed_form)
-![.github/workflows/tests.yml](https://github.com/erichmenge/signed_form/workflows/.github/workflows/tests.yml/badge.svg)
-[![Code Climate](https://codeclimate.com/github/erichmenge/signed_form.png)](https://codeclimate.com/github/erichmenge/signed_form)
-[![Coverage Status](https://coveralls.io/repos/erichmenge/signed_form/badge.png?branch=master)](https://coveralls.io/r/erichmenge/signed_form)
-[![Inline docs](http://inch-ci.org/github/erichmenge/signed_form.svg?branch=master&style=flat)](https://inch-ci.org/github/erichmenge/signed_form)
+[![Gem Version](https://badge.fury.io/rb/signed_form.png)](https://badge.fury.io/rb/signed_form)
+[![Tests](https://github.com/erichmenge/signed_form/actions/workflows/tests.yml/badge.svg)](https://github.com/erichmenge/signed_form/actions/workflows/tests.yml)
 
-SignedForm brings new convenience and security to your Rails 5 or Rails 4  
-application.
+SignedForm brings signed-field convenience and security to Rails applications.
 
 SignedForm is under active development. Please make sure you're reading the  
 README associated with the version of SignedForm you're using. Click the tag  
@@ -15,9 +11,6 @@ link on GitHub to switch to the version you've installed to get the correct
 README.
 
 Or be brave and bundle the gem straight from GitHub master.
-
-A nicely displayed version of this README complete with table of contents is  
-available [here](http://erichmenge.com/signed_form/).
 
 ## How It Works
 
@@ -36,7 +29,7 @@ no more `attr_accessible`. It just works.
 What this looks like:
 
 ```erb
-<%= form_for @user, signed: true do |f| %>
+<%= form_with model: @user, signed: true do |f| %>
   <% f.add_signed_fields :zipcode, :state # add additional fields to sign %>
 
   <%= f.text_field :name %>
@@ -46,10 +39,10 @@ What this looks like:
 ```
 
 ```ruby
-UsersController < ApplicationController
+class UsersController < ApplicationController
   def update
     @user = User.find params[:id]
-    @user.update_attributes params[:user]
+    @user.update params[:user]
   end
 end
 ```
@@ -57,7 +50,7 @@ end
 Disabled fields need to be explicitly signed:
 
 ```erb
-<%= form_for @user, signed: true do |f| %>
+<%= form_with model: @user, signed: true do |f| %>
 <% f.add_signed_fields :name %>
 
 <%= f.text_field :name, disabled: true %>
@@ -68,8 +61,7 @@ Disabled fields need to be explicitly signed:
 That's it. You're done. Need to add a field? Pop it in the form. You don't need  
 to then update a list of attributes.
 
-Of course, you're free to continue using the standard `form_for`. `SignedForm`  
-is strictly opt-in. It won't change the way you use standard forms.
+`SignedForm` is strictly opt-in. Rails 8's `form_with` is the primary API, and legacy `form_for` remains supported. Unsigned forms keep Rails' normal behavior.
 
 ## Is it any good?
 
@@ -90,10 +82,11 @@ or on a form by form basis.
 
 ## Requirements
 
-SignedForm requires:
+The gem requires Ruby 3.3 or newer and Action Pack 4.2 or newer.
+The [test matrix](.github/workflows/tests.yml) lists individual Ruby and Rails combinations, including the latest stable releases, Ruby head, and Rails main.
 
-* Ruby 2.4.3 or 2.5.0
-* Rails 4.2-stable, Rails 5.2-stable, or Rails master
+`SignedForm::SignedData` signs and verifies the existing form token format.
+Applications can upgrade while previously rendered forms are still in use.
 
 [strong_parameters]: https://github.com/rails/strong_parameters
 
@@ -123,8 +116,7 @@ end
 
 ## Support for other Builders
 
-Any form that wraps `form_for` and the default field helpers will work with  
-SignedForm. For example, a signed SimpleForm might look like this:
+Builders that wrap Rails `form_with` or `form_for` and the default field helpers work with SignedForm. For example, a signed SimpleForm might look like this:
 
 ```erb
 <%= simple_form_for @user, signed: true do |f| %>

@@ -2,8 +2,13 @@ require 'spec_helper'
 
 class User
   extend ActiveModel::Naming
+  include ActiveModel::Conversion
 
   attr_accessor :name, :options, :widgets_attributes
+
+  def persisted?
+    false
+  end
 
   def to_key
     [1]
@@ -63,6 +68,7 @@ describe SignedForm::FormBuilder do
               '</form>'
 
       content.should =~ Regexp.new(regex, Regexp::MULTILINE)
+      content.scan('name="form_signature"').size.should == 1
     end
 
     it "should not sign if no option is present" do
@@ -94,6 +100,53 @@ describe SignedForm::FormBuilder do
     end
   end
 
+  describe "form_with tag", if: ActionView::Helpers::FormHelper.method_defined?(:form_with) do
+    it "should build a form with one signature" do
+      content = form_with(model: User.new, url: '/users', signed: true) do |f|
+        f.text_field :name
+      end
+
+      data = get_data_from_form(content)
+      data['user'].should include(:name)
+      content.scan('name="form_signature"').size.should == 1
+    end
+
+    it "should not sign if no option is present" do
+      content = form_with(model: User.new, url: '/users') do |f|
+        f.text_field :name
+      end
+
+      content.should_not include('form_signature')
+    end
+
+    it "should honor the global default and an explicit opt-out" do
+      SignedForm.options[:signed] = true
+
+      signed_content = form_with(model: User.new, url: '/users') { |f| f.text_field :name }
+      unsigned_content = form_with(model: User.new, url: '/users', signed: false) { |f| f.text_field :name }
+
+      signed_content.should include('form_signature')
+      unsigned_content.should_not include('form_signature')
+    end
+
+    it "signs the current path including its query when the action is omitted", if: rails_version_satisfies?('>= 7') do
+      allow(self).to receive(:request).and_return(double(fullpath: '/users?active=1'))
+      content = form_with(scope: :user, url: false, signed: true) { |f| f.text_field :name }
+
+      expect(content).not_to match(/<form[^>]* action=/)
+      expect(get_data_from_form(content)[:_options_][:url]).to eq('/users?active=1')
+    end
+
+    it "should sign the resolved destination" do
+      content = form_with(model: User.new, url: '/users', signed: true, sign_destination: true) do |f|
+        f.text_field :name
+      end
+
+      data = get_data_from_form(content)
+      data[:_options_][:method].should == :post
+      data[:_options_][:url].should == '/users'
+    end
+  end
   describe "third party builders" do
     it "should build a signed form" do
       content = form_for(User.new, signed: true, builder: MockBuilder) do |f|
@@ -104,16 +157,21 @@ describe SignedForm::FormBuilder do
     end
 
     it "should raise if a builder isn't supported" do
-      expect { form_for(User.new, signed: true, builder: Class.new) {} }.to raise_error
+      expect { form_for(User.new, signed: true, builder: Class.new) {} }.to raise_error(
+        RuntimeError,
+        "Form signing not supported on builders that don't subclass ActionView::Helpers::FormBuilder or include SignedForm::FormBuilder"
+      )
     end
   end
 
   describe "sign_destination" do
-    after do
-      @data.should include(:_options_)
-      @data[:_options_].should include(:method, :url)
-      @data[:_options_][:method].should == :post
-      @data[:_options_][:url].should == '/users'
+    def assert_method_and_url(content, method = :post, url = '/users/new')
+      data = get_data_from_form(content)
+
+      expect(data).to include(:_options_)
+      expect(data[:_options_]).to include(:method, :url)
+      expect(data[:_options_][:method]).to eql(method)
+      expect(data[:_options_][:url]).to eql(url)
     end
 
     it "should set a target" do
@@ -121,7 +179,7 @@ describe SignedForm::FormBuilder do
         f.text_field :name
       end
 
-      @data = get_data_from_form(content)
+      assert_method_and_url(content)
     end
 
     it "should set a target when the default options are enabled" do
@@ -131,7 +189,84 @@ describe SignedForm::FormBuilder do
         f.text_field :name
       end
 
-      @data = get_data_from_form(content)
+      assert_method_and_url(content)
+    end
+
+    context "method" do
+      it "should read method from options -> html" do
+        SignedForm.options[:sign_destination] = true
+
+        content = form_for(User.new, signed: true, html: { method: :get }) do |f|
+          f.text_field :name
+        end
+
+        assert_method_and_url(content, :get)
+      end
+
+      it "should read method from options" do
+        SignedForm.options[:sign_destination] = true
+
+        content = form_for(User.new, signed: true, method: :get) do |f|
+          f.text_field :name
+        end
+
+        assert_method_and_url(content, :get)
+      end
+
+      it "should infer method from object persisted state", if: rails_version_satisfies?('>= 7.0') do
+        SignedForm.options[:sign_destination] = true
+
+        user = User.new
+        allow(user).to receive(:persisted?).and_return(true)
+
+        content = form_for(user, signed: true) do |f|
+          f.text_field :name
+        end
+
+        assert_method_and_url(content, :patch, '/users/1')
+      end
+    end
+
+    context "url" do
+      it "should read url from options" do
+        SignedForm.options[:sign_destination] = true
+
+        content = form_for(User.new, signed: true, url: '/other/url') do |f|
+          f.text_field :name
+        end
+
+        assert_method_and_url(content, :post, '/other/url')
+      end
+
+      it "should work when model passed", if: rails_version_satisfies?('>= 7.0') do
+        SignedForm.options[:sign_destination] = true
+
+        content = form_for(User.new, signed: true) do |f|
+          f.text_field :name
+        end
+
+        assert_method_and_url(content, :post, '/users/new')
+      end
+
+      it "should read format from options", if: rails_version_satisfies?('>= 7.0') do
+        SignedForm.options[:sign_destination] = true
+
+        content = form_for(User.new, signed: true, format: 'bmp') do |f|
+          f.text_field :name
+        end
+
+        assert_method_and_url(content, :post, '/users/new.bmp')
+      end
+
+      it "should work when url hash is passed", if: rails_version_satisfies?('>= 7.0') do
+        SignedForm.options[:sign_destination] = true
+
+        content = form_for(User.new, signed: true, url: { action: "create" }) do |f|
+          f.text_field :name
+        end
+
+        assert_method_and_url(content, :post, '/some/path?action=create')
+      end
     end
   end
 
@@ -141,9 +276,17 @@ describe SignedForm::FormBuilder do
       @data['user'].should include({:options=>[]})
     end
 
-    it "should add to the allowed attributes when collection_check_boxes is used", action_pack: /4\.\d+/ do
+    it "should add to the allowed attributes when collection_check_boxes is used", if: rails_version_satisfies?('> 4') do
       content = form_for(User.new, signed: true) do |f|
         f.collection_check_boxes :options, ['a', 'b'], :to_s, :to_s
+      end
+
+      @data = get_data_from_form(content)
+    end
+
+    it "should add to the allowed attributes when collection_checkboxes is used", if: rails_version_satisfies?('>= 8') do
+      content = form_for(User.new, signed: true) do |f|
+        f.collection_checkboxes :options, ['a', 'b'], :to_s, :to_s
       end
 
       @data = get_data_from_form(content)
@@ -162,18 +305,48 @@ describe SignedForm::FormBuilder do
   end
 
   describe "form inputs" do
-    fields  = ActionView::Helpers::FormBuilder.instance_methods - Object.instance_methods
-    fields -= [:button, :multipart=, :submit, :fields,
-               :field_helpers, :label, :multipart,
-               :emitted_hidden_id?, :to_model, :field_helpers?,
-               :field_helpers=, :fields_for, :object_name=,
-               :object=, :object_name, :model_name_from_record_or_class,
-               :multipart?, :options, :options=,
-               :convert_to_model, :to_partial_path, :index,
-               :object, :radio_button, :parent_builder,
-               :collection_check_boxes, :grouped_collection_select, :select,
-               :collection_select, :collection_radio_buttons, :time_select,
-               :datetime_select, :time_zone_select, :date_select, :search_field]
+    fields = ActionView::Helpers::FormBuilder.instance_methods - Object.instance_methods - %i(
+      button
+      collection_check_boxes
+      collection_checkboxes
+      collection_radio_buttons
+      collection_select
+      convert_to_model
+      date_select
+      datalist
+      datetime_select
+      emitted_hidden_id?
+      field_helpers
+      field_helpers=
+      field_helpers?
+      field_id
+      field_name
+      fields
+      fields_for
+      grouped_collection_select
+      id
+      index
+      label
+      model_name_from_record_or_class
+      multipart
+      multipart=
+      multipart?
+      object
+      object=
+      object_name
+      object_name=
+      options
+      options=
+      parent_builder
+      radio_button
+      search_field
+      select
+      submit
+      time_select
+      time_zone_select
+      to_model
+      to_partial_path
+    )
 
     after do
       @data['user'].size.should == 1
@@ -218,7 +391,7 @@ describe SignedForm::FormBuilder do
       @data = get_data_from_form(content)
     end
 
-    it "should add to the allowed attributes when collection_radio_buttons is used", action_pack: /4\.\d+/ do
+    it "should add to the allowed attributes when collection_radio_buttons is used", if: rails_version_satisfies?('> 4') do
       content = form_for(User.new, signed: true) do |f|
         f.collection_radio_buttons :name, %w(a b), :to_s, :to_s
       end
@@ -305,7 +478,7 @@ describe SignedForm::FormBuilder do
       submitted.permit(*@data['user'])[:name].should == %w(a b)
     end
 
-    it "should add a hash with an empty array when collection_check_boxes is used", action_pack: /4\.\d+/ do
+    it "should add a hash with an empty array when collection_check_boxes is used", if: rails_version_satisfies?('> 4') do
       content = form_for(User.new, signed: true) do |f|
         f.collection_check_boxes :name, ['a', 'b'], :to_s, :to_s
       end
@@ -329,7 +502,7 @@ describe SignedForm::FormBuilder do
       @data['user'].should_not include({:name => []})
     end
 
-    it "shouldn't add a hash with an empty array when collection_radio_buttons is used", action_pack: /4\.\d+/ do
+    it "shouldn't add a hash with an empty array when collection_radio_buttons is used", if: rails_version_satisfies?('> 4') do
       content = form_for(User.new, signed: true) do |f|
         f.collection_radio_buttons :name, ['a', 'b'], :to_s, :to_s
       end
@@ -360,7 +533,7 @@ describe SignedForm::FormBuilder do
 
   describe "fields_for" do
     it "should nest attributes" do
-      user.stub(widgets: [widget])
+      allow(user).to receive(:widgets).and_return([widget])
 
       content = form_for(user, signed: true) do |f|
         f.fields_for :widgets do |ff|
@@ -383,7 +556,7 @@ describe SignedForm::FormBuilder do
     end
 
     it "passes the signing context when nested options are the second argument" do
-      user.stub(widgets: [widget])
+      allow(user).to receive(:widgets).and_return([widget])
       content = form_for(user, signed: true, builder: MockBuilder) do |f|
         f.fields_for :widgets, builder: f.class do |ff|
           ff.name_input

@@ -23,16 +23,18 @@ describe SignedForm::ActionController::PermitSignedParams do
     "#{encoded_data}--#{signature}"
   end
 
-  Object.send(:remove_const, :Rails) if defined?(Rails)
 
   before do
+    hide_const("Rails")
     SignedForm.secret_key = "abc123"
 
-    Controller.any_instance.stub(request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users', variant: nil))
-    Controller.any_instance.stub(params: ActionController::Parameters.new("user" => { name: "Erich Menge", occupation: 'developer' }))
+    allow_any_instance_of(Controller).to receive_messages(
+      request: double('request', method: 'POST', request_method: 'POST', fullpath: '/users', url: '/users', variant: nil),
+      params: ActionController::Parameters.new("user" => { name: "Erich Menge", occupation: 'developer' })
+    )
 
-    params.stub(:[]).and_call_original
-    params.stub(:[]).with('user').and_return(params)
+    allow(params).to receive(:[]).and_call_original
+    allow(params).to receive(:[]).with('user').and_return(params)
   end
 
   it "should raise if signature isn't valid" do
@@ -41,7 +43,7 @@ describe SignedForm::ActionController::PermitSignedParams do
   end
 
   context "when the parameters are good" do
-    before { params.should_receive(:permit).with(:name).and_return(params) }
+    before { expect(params).to receive(:permit).with(:name).and_return(params) }
 
     it "should permit attributes that are allowed" do
       params['form_signature'] = marshal_and_sign "user" => [:name]
@@ -51,7 +53,7 @@ describe SignedForm::ActionController::PermitSignedParams do
     it "should verify current url matches targeted url" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { method: 'post', url: '/users'  })
 
-      controller.request.should_receive(:fullpath).and_return '/users'
+      expect(controller.request).to receive(:fullpath).and_return '/users'
       controller.permit_signed_form_data
     end
   end
@@ -67,7 +69,7 @@ describe SignedForm::ActionController::PermitSignedParams do
   end
 
   context "when the digest is bad" do
-    before { digestor.stub(:to_s).and_return "bad" }
+    before { allow(digestor).to receive(:to_s).and_return "bad" }
 
     it "should not reject if inside grace period" do
       params['form_signature'] = marshal_and_sign("user" => [:name], :_options_ => { digest: digestor, digest_expiration: Time.now + 20 })

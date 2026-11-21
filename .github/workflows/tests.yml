@@ -1,52 +1,56 @@
+name: Ruby and Rails
+
 on:
-  pull_request:
   push:
-    branches:
-      - master
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental }}
+  test:
+    if: >-
+      !github.event.repository.fork &&
+      contains(fromJSON('["erichmenge","Spaceghost"]'), github.actor) &&
+      contains(fromJSON('["erichmenge","Spaceghost"]'), github.triggering_actor) &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: [self-hosted, Linux, X64, incus, ubuntu-tiny, fedora-std]
+    name: Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
+    timeout-minutes: 45
+    continue-on-error: ${{ matrix.ruby == 'ruby-head' || matrix.rails == 'main' }}
     strategy:
+      fail-fast: false
+      max-parallel: 2
       matrix:
-        ruby:
-          - 2.7.6
-          - 3.0.4
-          - 3.1.2
-        rails:
-          - 5.2.8.1
-          - 6.1.7
-        experimental:
-          - false
+        ruby: ['3.3', '3.4', '4.0']
+        rails: ['~> 7.2.0', '~> 8.0.0', '~> 8.1.0']
         include:
-          - ruby: 2.7.6
-            rails: 7.0.4
-            experimental: true
-          - ruby: 3.0.4
-            rails: 7.0.4
-            experimental: true
-          - ruby: 3.1.2
-            rails: 7.0.4
-            experimental: true
-          - ruby: 2.7.6
-            rails: master
-            experimental: true
-          - ruby: 3.0.4
-            rails: master
-            experimental: true
-          - ruby: 3.1.2
-            rails: master
-            experimental: true
-
+          - { ruby: '3.3', rails: '~> 6.1.0' }
+          - { ruby: '3.3', rails: '~> 7.0.0' }
+          - { ruby: '3.3', rails: '~> 7.1.0' }
+          # Rolling stable and independent upstream development lanes.
+          - { ruby: jruby, rails: latest }
+          - { ruby: ruby, rails: latest }
+          - { ruby: ruby, rails: main }
+          - { ruby: ruby-head, rails: latest }
+          - { ruby: ruby-head, rails: main }
+    env:
+      RAILS_VERSION: ${{ matrix.rails }}
     steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-      env:
-        RAILS_VERSION: ${{ matrix.rails }}
-    - run: bundle exec rspec
-      env:
-        RAILS_VERSION: ${{ matrix.rails }}
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        if: matrix.ruby == 'jruby'
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec ruby -raction_pack -e 'puts ActionPack::VERSION::STRING'
+      - run: bundle exec rake spec
+      - run: bundle exec rake build

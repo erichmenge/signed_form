@@ -57,15 +57,6 @@ describe SignedForm::Digestor do
     digestor.to_s.should == digestor2.to_s
   end
 
-  # Ruby 2.7 removed taint checking mechanism
-  # https://blog.saeloun.com/2020/02/18/ruby-2-7-access-and-setting-of-safe-warned-will-become-global-variable.html
-  it "should marshal and taint the digest", if: Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.7.0") do
-    digestor = SignedForm::Digestor.new(template)
-    data = Marshal.dump digestor
-    digestor = Marshal.load data
-    digestor.to_s.should be_tainted
-  end
-
   it "should reset the digest if a template is added" do
     digestor = SignedForm::Digestor.new(template)
     first_digest = digestor.to_s

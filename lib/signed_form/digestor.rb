@@ -1,3 +1,4 @@
+require 'digest/md5'
 require 'set'
 
 module SignedForm
@@ -28,7 +29,6 @@ module SignedForm
     def marshal_load(input)
       @views, @digest = input
       @view_paths = []
-      @digest.taint if RUBY_VERSION < '2.7'
     end
 
     def to_s

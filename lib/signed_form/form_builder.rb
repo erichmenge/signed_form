@@ -3,9 +3,10 @@ module SignedForm
     FIELDS_TO_SIGN = [{:select => :multiple_select?}, {:collection_select => :multiple_select?},
                       {:grouped_collection_select => :multiple_select?},
                       :time_zone_select, :collection_radio_buttons, {:collection_check_boxes => []},
+                      {:collection_checkboxes => []}, :weekday_select,
                       :date_select, :datetime_select, :time_select,
                       :text_field, :password_field, :hidden_field,
-                      :file_field, :text_area,
+                      :file_field, :text_area, :textarea,
                       :radio_button, :color_field,
                       :telephone_field, :phone_field, :date_field,
                       :time_field, :datetime_field, :datetime_local_field,
@@ -43,6 +44,8 @@ module SignedForm
       super
     end
 
+    alias_method :checkbox, :check_box if ::ActionView::Helpers::FormBuilder.method_defined?(:checkbox)
+
     BUILDERS = Hash.new do |h,k|
       h[k] = Class.new(k) do
         include FormBuilder
@@ -71,11 +74,7 @@ module SignedForm
     def form_signature_tag
       @signed_attributes.each { |k,v| v.uniq! if v.is_a?(Array) }
       recursive_merge_identical_hashes! @signed_attributes
-      encoded_data = Base64.strict_encode64 Marshal.dump(@signed_attributes)
-
-      hmac = SignedForm::HMAC.new(secret_key: SignedForm.secret_key)
-      signature = hmac.create(encoded_data)
-      token = "#{encoded_data}--#{signature}"
+      token = SignedForm.tokenize(@signed_attributes)
       %(<input type="hidden" name="form_signature" value="#{token}" />\n).html_safe
     end
 
@@ -113,12 +112,20 @@ module SignedForm
 
     private
 
+    def determine_html_method
+      if object.respond_to?(:persisted?) && object.persisted?
+        :patch
+      else
+        :post
+      end
+    end
+
     def prepare_signed_attributes_hash
       @signed_attributes[:_options_] = {}
 
       if options[:sign_destination]
-        @signed_attributes[:_options_][:method] = options[:html][:method]
-        @signed_attributes[:_options_][:url]    = options[:url]
+        @signed_attributes[:_options_][:method] = options.dig(:html, :method) || options[:method] || determine_html_method
+        @signed_attributes[:_options_][:url]    = options[:signed_form_url] || options[:url]
       end
 
       if options[:digest]
