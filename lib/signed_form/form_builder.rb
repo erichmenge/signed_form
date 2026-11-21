@@ -49,6 +49,14 @@ module SignedForm
       end
     end
 
+    def self.signed_builder(builder)
+      return builder if builder.ancestors.include?(FormBuilder)
+      unless builder <= ::ActionView::Helpers::FormBuilder
+        raise "Form signing not supported on builders that don't subclass ActionView::Helpers::FormBuilder or include SignedForm::FormBuilder"
+      end
+      BUILDERS[builder]
+    end
+
     def initialize(*)
       super
       if options[:signed_attributes_context]
@@ -75,19 +83,19 @@ module SignedForm
     #
     # @see http://api.rubyonrails.org/classes/ActionView/Helpers/FormBuilder.html#method-i-fields_for
     def fields_for(record_name, record_object = nil, fields_options = {}, &block)
-      hash  = {}
-      array = []
-
-      if nested_attributes_association?(record_name)
-        hash["#{record_name}_attributes"] = fields_options[:signed_attributes_context] = array
-      else
-        hash[record_name] = fields_options[:signed_attributes_context] = array
+      if record_object.is_a?(Hash) && record_object.extractable_options?
+        fields_options, record_object = record_object, nil
       end
 
-      add_signed_fields hash
+      fields = []
+      key = nested_attributes_association?(record_name) ? "#{record_name}_attributes" : record_name
+      add_signed_fields key => fields
 
-      content = super
-      array.uniq!
+      builder = fields_options[:builder] || options[:builder] || self.class
+      fields_options = fields_options.merge(:builder => FormBuilder.signed_builder(builder),
+                                            :signed_attributes_context => fields)
+      content = super(record_name, record_object, fields_options, &block)
+      fields.uniq!
       content
     end
 

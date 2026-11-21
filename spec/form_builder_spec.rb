@@ -36,7 +36,11 @@ class ControllerRenderer < AbstractController::Base
   end
 end
 
-class MockBuilder < ActionView::Helpers::FormBuilder; end
+class MockBuilder < ActionView::Helpers::FormBuilder
+  def name_input
+    text_field :name
+  end
+end
 
 describe SignedForm::FormBuilder do
   include SignedFormViewHelper
@@ -366,6 +370,27 @@ describe SignedForm::FormBuilder do
 
       data = get_data_from_form(content)
       data['user'].should include("widgets_attributes" => [:name])
+    end
+
+    it "signs fields rendered by an explicit nested builder with a record" do
+      content = form_for(user, signed: true) do |f|
+        f.fields_for :widgets, [widget], builder: MockBuilder do |ff|
+          ff.name_input
+        end
+      end
+
+      get_data_from_form(content)['user'].should == [{ 'widgets_attributes' => [:name] }]
+    end
+
+    it "passes the signing context when nested options are the second argument" do
+      user.stub(widgets: [widget])
+      content = form_for(user, signed: true, builder: MockBuilder) do |f|
+        f.fields_for :widgets, builder: f.class do |ff|
+          ff.name_input
+        end
+      end
+
+      get_data_from_form(content)['user'].should == [{ 'widgets_attributes' => [:name] }]
     end
 
     it "should deeply nest attributes" do
