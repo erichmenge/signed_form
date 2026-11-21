@@ -264,6 +264,14 @@ describe SignedForm::FormBuilder do
   end
 
   describe "disabled form inputs" do
+    it "skips a disabled multiple checkbox with explicit values" do
+      content = form_for(user, signed: true) do |f|
+        f.check_box :options, { multiple: true, disabled: true }, 'a', nil
+      end
+
+      get_data_from_form(content)['user'].should be_empty
+    end
+
     it "should be explicitly signed" do
       content = form_for(User.new, signed: true) do |f|
         f.text_field :name, disabled: true
@@ -279,6 +287,18 @@ describe SignedForm::FormBuilder do
       @data['user'].size.should == 1
       @data['user'].should_not include(:name)
       @data['user'].should include({:name => []})
+    end
+
+    it "permits the selected values from repeated multiple checkboxes" do
+      content = form_for(user, signed: true) do |f|
+        f.check_box(:name, { multiple: true }, 'a', nil) +
+          f.check_box(:name, { multiple: true }, 'b', nil)
+      end
+
+      content.should include('name="user[name][]"')
+      @data = get_data_from_form(content)
+      submitted = ActionController::Parameters.new(name: %w(a b))
+      submitted.permit(*@data['user'])[:name].should == %w(a b)
     end
 
     it "should add a hash with an empty array when collection_check_boxes is used", action_pack: /4\.\d+/ do

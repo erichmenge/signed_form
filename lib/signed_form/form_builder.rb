@@ -5,7 +5,7 @@ module SignedForm
                       :time_zone_select, :collection_radio_buttons, {:collection_check_boxes => []},
                       :date_select, :datetime_select, :time_select,
                       :text_field, :password_field, :hidden_field,
-                      :file_field, :text_area, :check_box,
+                      :file_field, :text_area,
                       :radio_button, :color_field,
                       :telephone_field, :phone_field, :date_field,
                       :time_field, :datetime_field, :datetime_local_field,
@@ -29,6 +29,18 @@ module SignedForm
         end
         super(field, *args, &block)
       end
+    end
+
+    def check_box(field, options = {}, *values, &block)
+      html_options = options.stringify_keys
+      unless html_options['disabled']
+        if html_options['multiple']
+          add_signed_fields field => []
+        else
+          add_signed_fields field
+        end
+      end
+      super
     end
 
     BUILDERS = Hash.new do |h,k|
